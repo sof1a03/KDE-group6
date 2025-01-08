@@ -11,4 +11,5 @@ export class BookCardComponent {
   @Input() image_url = '';
   @Input() title= '';
   @Input() description= '';
+  @Input() bookid= '';
 }

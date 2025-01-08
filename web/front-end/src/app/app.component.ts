@@ -6,7 +6,7 @@ import { BookViewComponent } from "./components/book-view/book-view.component";
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, SidebarComponent, CommonModule, BookViewComponent],
+  imports: [RouterOutlet, SidebarComponent, CommonModule],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })

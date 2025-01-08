@@ -1,5 +1,5 @@
-<div class="row row-cols-4 row-cols-md-3 g-4">
+<div class="row row-cols-sm-3 g-2">
     <div *ngFor="let book of dummy_data" class="col">
-<app-book-card [image_url]="book[1]" [title]="book[0]"></app-book-card>
+<app-book-card [image_url]="book[1]" [title]="book[0]" [description]="lorem"></app-book-card>
    </div>
 </div>

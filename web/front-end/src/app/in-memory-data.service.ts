@@ -14,7 +14,8 @@ export class InMemoryDataService implements InMemoryDbService {
         "genres": ["Science Fiction", "Drama"],
         "publisher": "Harcourt, Brace & World",
         "year": 1966,
-        "ISBN": "978-0-15-632940-9"
+        "ISBN": "978-0-15-632940-9",
+        "author": "Daniel Keyes"
       },
       {
         "name": "Lord of the Rings",
@@ -23,7 +24,8 @@ export class InMemoryDataService implements InMemoryDbService {
         "genres": ["Fantasy", "Adventure"],
         "publisher": "George Allen & Unwin",
         "year": 1954,
-        "ISBN": "978-0-618-00221-3"
+        "ISBN": "978-0-618-00221-3",
+        "author": "J.R.R. Tolkien"
       },
       {
         "name": "The Perfume",
@@ -32,7 +34,8 @@ export class InMemoryDataService implements InMemoryDbService {
         "genres": ["Historical Fiction", "Thriller"],
         "publisher": "Diogenes Verlag",
         "year": 1985,
-        "ISBN": "978-0-394-53982-5"
+        "ISBN": "978-0-394-53982-5",
+        "author": "Patrick Süskind"
       },
       {
         "name": "Fall or Dodge; in Hell",
@@ -41,7 +44,8 @@ export class InMemoryDataService implements InMemoryDbService {
         "genres": ["Science Fiction", "Satire"],
         "publisher": "Simon & Schuster",
         "year": 2019,
-        "ISBN": "978-1-4767-3802-9"
+        "ISBN": "978-1-4767-3802-9",
+        "author": "Neal Stephenson"
       },
       {
         "name": "Brave New World",
@@ -50,7 +54,8 @@ export class InMemoryDataService implements InMemoryDbService {
         "genres": ["Science Fiction", "Dystopian"],
         "publisher": "Chatto & Windus",
         "year": 1932,
-        "ISBN": "978-0-06-085052-4"
+        "ISBN": "978-0-06-085052-4",
+        "author": "Aldous Huxley"
       },
       {
         "name": "The Midnight Library",
@@ -59,7 +64,8 @@ export class InMemoryDataService implements InMemoryDbService {
         "genres": ["Fantasy", "Magical Realism"],
         "publisher": "Canongate Books",
         "year": 2020,
-        "ISBN": "978-1-78689-273-5"
+        "ISBN": "978-1-78689-273-5",
+        "author": "Matt Haig"
       },
       {
         "name": "Cryptonomicon",
@@ -68,7 +74,8 @@ export class InMemoryDataService implements InMemoryDbService {
         "genres": ["Historical Fiction", "Science Fiction"],
         "publisher": "Spectra Books",
         "year": 1999,
-        "ISBN": "978-0-380-78862-0"
+        "ISBN": "978-0-380-78862-0",
+        "author": "Neal Stephenson"
       },
       {
         "name": "Hersenschimmen",
@@ -77,7 +84,8 @@ export class InMemoryDataService implements InMemoryDbService {
         "genres": ["Psychological Fiction", "Drama"],
         "publisher": "De Bezige Bij",
         "year": 1984,
-        "ISBN": "978-90-234-5363-9"
+        "ISBN": "978-90-234-5363-9",
+        "author": "J. Bernlef"
       },
       {
         "name": "Tokyo Vice",
@@ -86,18 +94,10 @@ export class InMemoryDataService implements InMemoryDbService {
         "genres": ["True Crime", "Memoir"],
         "publisher": "Pantheon Books",
         "year": 2009,
-        "ISBN": "978-0-307-37879-0"
+        "ISBN": "978-0-307-37879-0",
+        "author": "Jake Adelstein"
       }
     ];
     return {books};
-    }
-
-  // Overrides the genId method to ensure that a hero always has an id.
-  // If the heroes array is empty,
-  // the method below returns the initial number (11).
-  // if the heroes array is not empty, the method below returns the highest
-  // hero id + 1.
- // genId(heroes: Hero[]): number {
-  //  return heroes.length > 0 ? Math.max(...heroes.map(hero => hero.id)) + 1 : 11;
-  //}
+  }
 }

@@ -10,6 +10,7 @@ export interface Book {
   publisher: string;
   year: number;
   ISBN: string;
+  author: string;
 }
 
 

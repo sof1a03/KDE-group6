@@ -14,7 +14,7 @@ export class BookCardComponent {
   @Input() publisher= '';
   @Input() year= 0;
   @Input() ISBN= '';
-  @Input() bookid= '';
+  @Input() id= '';
   @Input() genres= [''];
   @Input() author= '';
 }

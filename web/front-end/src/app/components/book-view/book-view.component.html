@@ -1,5 +1,5 @@
 <div class="row row-cols-sm-3 g-2" *ngIf="dummy_data.length > 0">
     <div *ngFor="let book of dummy_data" class="col">
-  <app-book-card [image_url]="book.url" [title]="book.name" [author]="book.author" [publisher]="book.publisher" [year]="book.year" [ISBN]="book.ISBN" [genres]="book.genres" [bookid]="book.bookid"></app-book-card>
+  <app-book-card [image_url]="book.url" [title]="book.name" [author]="book.author" [publisher]="book.publisher" [year]="book.year" [ISBN]="book.ISBN" [genres]="book.genres" [id]="book.id"></app-book-card>
    </div>
 </div>

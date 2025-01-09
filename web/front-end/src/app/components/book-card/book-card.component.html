@@ -2,13 +2,13 @@
   <img src="{{image_url}}" class="card-img-top" alt="...">
   <div class="card-body">
     <div class="card-title" style="font-size: 13px;">{{title}}</div>
-  <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#exampleModal">
+  <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal"         [attr.data-bs-target]="'#exampleModal' + bookid" >
     Read more
   </button>
   </div>
 </div>
 
-<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" [attr.id]="'exampleModal' + bookid" tabindex="-1" [attr.aria-labelledby]="'exampleModalLabel' + bookid" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">

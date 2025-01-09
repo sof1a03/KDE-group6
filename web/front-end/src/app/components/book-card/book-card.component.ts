@@ -11,6 +11,9 @@ import { Component, Input } from '@angular/core';
 export class BookCardComponent {
   @Input() image_url = '';
   @Input() title= '';
-  @Input() description= '';
+  @Input() publisher= '';
+  @Input() year= 0;
+  @Input() ISBN= '';
   @Input() bookid= '';
+  @Input() genres= [''];
 }

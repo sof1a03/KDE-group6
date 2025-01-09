@@ -2,7 +2,11 @@
   <img src="{{image_url}}" class="card-img-top" alt="...">
   <div class="card-body">
     <div class="card-title" style="font-size: 13px;">{{title}}</div>
-  <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal"         [attr.data-bs-target]="'#exampleModal' + bookid" >
+  <button type="button"
+    class="btn btn-outline-secondary btn-sm"
+    data-bs-toggle="modal"
+    [attr.data-bs-target]="'#exampleModal' + bookid"
+  >
     Read more
   </button>
   </div>
@@ -17,15 +21,15 @@
       </div>
       <div class="modal-body">
         <b>Author:</b>
-        {{author}} <br>
+          {{author}} <br>
         <b>Publisher:</b>
-        {{publisher}} <br>
+          {{publisher}} <br>
         <b>Year:</b>
-        {{year}} <br>
+          {{year}} <br>
         <b>ISBN:</b>
-        {{ISBN}} <br>
+          {{ISBN}} <br>
         <b>genres:</b>
-        {{genres}} <br>
+          {{genres}} <br>
         <hr>
         <b>More like this：</b>
       </div>

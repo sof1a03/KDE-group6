@@ -6,6 +6,10 @@ export interface Book {
   name: string;
   url: string;
   bookid: string;
+  genres: string[];
+  publisher: string;
+  year: number;
+  ISBN: string;
 }
 
 

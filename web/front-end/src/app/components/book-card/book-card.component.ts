@@ -7,6 +7,7 @@ import { Component, Input } from '@angular/core';
   templateUrl: './book-card.component.html',
   styleUrl: './book-card.component.css'
 })
+
 export class BookCardComponent {
   @Input() image_url = '';
   @Input() title= '';

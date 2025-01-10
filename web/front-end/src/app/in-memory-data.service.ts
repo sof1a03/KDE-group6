@@ -104,8 +104,9 @@ export class InMemoryDataService implements InMemoryDbService {
         return {'books':this.books};
     }
   // Implement `get` to handle both collections and individual item requests
+
   get(reqInfo: RequestInfo): Observable<any> {
-    const { collectionName, id } = reqInfo;
+    const { collectionName, id, query, req } = reqInfo;
 
     if (collectionName === 'books') {
       if (id) {
@@ -117,13 +118,35 @@ export class InMemoryDataService implements InMemoryDbService {
         }));
       } else {
         // If no ID is provided, return all books
+    // Return a default response if the collection is not handled
+
+    let books = [...this.books]; // Create a copy of the books array
+
+
+    // Apply filtering if query parameters are present
+    if (query?.has('page') || query?.has('pageSize')) {
+      const page = +(query?.get('page') ?? '1'); // Use ?? here
+      const pageSize = +(query?.get('pageSize') ?? '10'); // Use ?? here
+
+      const startIndex = (page - 1) * pageSize;
+      const endIndex = startIndex + pageSize;
+
+      books = books.slice(startIndex, endIndex);
+    }
+
+    return reqInfo.utils.createResponse$(() => ({
+      body: books,
+      status: 200,
+    }));
+  }
+
         return reqInfo.utils.createResponse$(() => ({
           body: this.books,
           status: 200
         }));
       }
-    }
-    // Return a default response if the collection is not handled
+
+
     return reqInfo.utils.createResponse$(() => ({
       body: [],
       status: 404

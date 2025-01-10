@@ -19,7 +19,6 @@ export class BookViewComponent implements OnInit {
 
   ngOnInit() {
     this.bookService.getBooks().subscribe(books => {
-      console.log(books);
       this.dummy_data = books;
     });
   }

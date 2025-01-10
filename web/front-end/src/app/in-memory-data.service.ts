@@ -2,13 +2,13 @@ import { Injectable } from '@angular/core';
 import { InMemoryDbService } from 'angular-in-memory-web-api';
 import { RequestInfo } from 'angular-in-memory-web-api';
 import { Book }  from './book-service';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class InMemoryDataService implements InMemoryDbService {
-  createDb() {
-    const books: Book[] = [
+    books: Book[] = [
       {
           "name": "Flowers for Algernon",
           "url": "https://media.s-bol.com/DY9K0jOzlggk/wV6q0xg/550x836.jpg",
@@ -100,16 +100,33 @@ export class InMemoryDataService implements InMemoryDbService {
           "author": "Jake Adelstein"
       }
   ];
-        return {books};
+  createDb() {
+        return {'books':this.books};
     }
+  // Implement `get` to handle both collections and individual item requests
+  get(reqInfo: RequestInfo): Observable<any> {
+    const { collectionName, id } = reqInfo;
 
-
-  // Overrides the genId method to ensure that a hero always has an id.
-  // If the heroes array is empty,
-  // the method below returns the initial number (11).
-  // if the heroes array is not empty, the method below returns the highest
-  // hero id + 1.
- // genId(heroes: Hero[]): number {
-  //  return heroes.length > 0 ? Math.max(...heroes.map(hero => hero.id)) + 1 : 11;
-  //}
+    if (collectionName === 'books') {
+      if (id) {
+        // If an ID is provided, find and return the specific book
+        const item = this.books.find(book => book.id === id);
+        return reqInfo.utils.createResponse$(() => ({
+          body: item,
+          status: item ? 200 : 404
+        }));
+      } else {
+        // If no ID is provided, return all books
+        return reqInfo.utils.createResponse$(() => ({
+          body: this.books,
+          status: 200
+        }));
+      }
+    }
+    // Return a default response if the collection is not handled
+    return reqInfo.utils.createResponse$(() => ({
+      body: [],
+      status: 404
+    }));
+  }
 }

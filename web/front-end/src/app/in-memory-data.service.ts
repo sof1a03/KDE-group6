@@ -100,17 +100,17 @@ export class InMemoryDataService implements InMemoryDbService {
           "ISBN": "978-0-307-37879-0",
           "author": "Jake Adelstein"
       }
-  ];
+    ];
+    likes: string[] = [];
   createDb() {
         return {'books':this.books,
-              'categories': this.categories
+              'categories': this.categories,
+              'likes': this.likes
         };
     }
-  // Implement `get` to handle both collections and individual item requests
 
   get(reqInfo: RequestInfo): Observable<any> {
     const { collectionName, id, query, req } = reqInfo;
-
     if (collectionName === 'categories'){
       const item = this.categories;
         return reqInfo.utils.createResponse$(() => ({
@@ -119,6 +119,7 @@ export class InMemoryDataService implements InMemoryDbService {
         }));
 
     }
+
 
     if (collectionName === 'books') {
       if (id) {

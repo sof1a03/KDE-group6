@@ -14,7 +14,7 @@ import { CategoryService } from '../../category.service';
 })
 export class SearchMenuComponent {
   categories = ['Fiction', 'Non-Fiction', 'Mystery', 'Thriller', 'Sci-Fi', 'Romance', 'History'];
-  selectedCategory = this.categories[0];
+  selectedCategories = [];
 
   startYear = 1900;
   endYear = new Date().getFullYear();
@@ -29,7 +29,6 @@ export class SearchMenuComponent {
     }
     categoryService.getCategories().subscribe(categories => {
       this.categories = categories;
-      console.log(this.categories)
     })
   }
 
@@ -44,7 +43,7 @@ export class SearchMenuComponent {
 
     this.router.navigate(['/search'], {
       queryParams: {
-        category: this.selectedCategory,
+        categories: this.selectedCategories,
         isbn: isbn,
         title: title,
         author: author,

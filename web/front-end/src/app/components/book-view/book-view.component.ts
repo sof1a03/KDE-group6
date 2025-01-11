@@ -25,7 +25,7 @@ export class BookViewComponent implements OnInit {
   ngOnInit() {
     if (this.router.url.startsWith('/search')){
       this.route.queryParams.subscribe(params => {
-        const category = params['category'] || null; // Provide a default value (null or '') if not present
+        const categories = params['categories'] || null; // Provide a default value (null or '') if not present
         const isbn = params['isbn'] || null;
         const title = params['title'] || null;
         const author = params['author'] || null;
@@ -34,15 +34,6 @@ export class BookViewComponent implements OnInit {
         const endYear = params['endYear'] || null;
         const username = this.userService.username;
 
-        // Now you can use these parameters to fetch and display the relevant books
-        console.log('Category:', category);
-        console.log('ISBN:', isbn);
-        console.log('Title:', title);
-        console.log('Author:', author);
-        console.log('Publisher:', publisher);
-        console.log('Start Year:', startYear);
-        console.log('End Year:', endYear);
-        console.log(username)
     this.bookService.getBooks().subscribe(books => {
       this.dummy_data = books;
     });

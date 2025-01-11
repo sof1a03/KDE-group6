@@ -37,7 +37,6 @@ export class BookPageComponent implements OnInit {
         this.bookService.getMoreLike(id, 1, 5).subscribe(books => {
 
           this.relatedBooks = books;
-          console.log(this.relatedBooks);
         })
       } else {
         // Handle the case where 'id' is not found in the route

@@ -8,6 +8,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root',
 })
 export class InMemoryDataService implements InMemoryDbService {
+    categories: string[] = ["Fiction", "Non-Fiction", "Mystery", "Thriller", "Sci-Fi", "Fantasy", "Romance", "Historical Fiction", "Contemporary", "Young Adult", "Children's Literature", "Biography", "Autobiography", "Memoir", "History", "Science", "Technology", "Cooking", "Travel", "Self-Help", "Business", "Finance", "Philosophy", "Religion", "Spirituality", "Poetry", "Drama", "Comedy", "Tragedy", "Art", "Music", "Photography", "Sports", "Health", "Fitness", "Parenting", "Education", "Politics", "Current Affairs", "Law", "True Crime", "Horror", "Science Fiction", "Graphic Novels", "Comics", "Manga", "Anime", "LGBTQ+", "Classics", "Literary Fiction"];
     books: Book[] = [
       {
           "name": "Flowers for Algernon",
@@ -101,12 +102,23 @@ export class InMemoryDataService implements InMemoryDbService {
       }
   ];
   createDb() {
-        return {'books':this.books};
+        return {'books':this.books,
+              'categories': this.categories
+        };
     }
   // Implement `get` to handle both collections and individual item requests
 
   get(reqInfo: RequestInfo): Observable<any> {
     const { collectionName, id, query, req } = reqInfo;
+
+    if (collectionName === 'categories'){
+      const item = this.categories;
+        return reqInfo.utils.createResponse$(() => ({
+          body: item,
+          status: item ? 200 : 404
+        }));
+
+    }
 
     if (collectionName === 'books') {
       if (id) {
@@ -139,11 +151,6 @@ export class InMemoryDataService implements InMemoryDbService {
       status: 200,
     }));
   }
-
-        return reqInfo.utils.createResponse$(() => ({
-          body: this.books,
-          status: 200
-        }));
       }
 
 

@@ -3,6 +3,7 @@ import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { UserService } from '../../user.service';
 import { Router } from '@angular/router';
+import { CategoryService } from '../../category.service';
 
 @Component({
   selector: 'app-search-menu',
@@ -20,11 +21,16 @@ export class SearchMenuComponent {
   years: number[] = [];
 
   constructor(public userService: UserService,
-    private router: Router
+    private router: Router,
+    private categoryService: CategoryService
   ) {
     for (let year = this.endYear; year >= this.startYear; year--) {
       this.years.push(year);
     }
+    categoryService.getCategories().subscribe(categories => {
+      this.categories = categories;
+      console.log(this.categories)
+    })
   }
 
   onSubmit() {

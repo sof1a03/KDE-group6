@@ -2,11 +2,13 @@ import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { SidebarComponent } from "./components/sidebar/sidebar.component";
 import { CommonModule } from '@angular/common';
-import { BookViewComponent } from "./components/book-view/book-view.component";
+import { FormsModule } from '@angular/forms';
+import { UserService } from './user.service';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, SidebarComponent, CommonModule],
+  providers: [UserService],
+  imports: [RouterOutlet, SidebarComponent, CommonModule, FormsModule],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })

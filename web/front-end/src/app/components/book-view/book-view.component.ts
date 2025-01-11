@@ -3,6 +3,8 @@ import { BookCardComponent } from "../book-card/book-card.component";
 import { CommonModule } from '@angular/common';
 import { BookService } from '../../book-service';
 import { Book } from '../../book-service';
+import { ActivatedRoute, Router } from '@angular/router';
+import { UserService } from '../../user.service';
 
 @Component({
   selector: 'app-book-view',
@@ -15,9 +17,38 @@ export class BookViewComponent implements OnInit {
   lorem = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
   dummy_data: Book[] = [];
 
-  constructor(private bookService: BookService) { }
+  constructor(private bookService: BookService,
+    private route: ActivatedRoute,
+    private router: Router,
+    private userService: UserService) { }
 
   ngOnInit() {
+    if (this.router.url.startsWith('/search')){
+      this.route.queryParams.subscribe(params => {
+        const category = params['category'] || null; // Provide a default value (null or '') if not present
+        const isbn = params['isbn'] || null;
+        const title = params['title'] || null;
+        const author = params['author'] || null;
+        const publisher = params['publisher'] || null;
+        const startYear = params['startYear'] || null;
+        const endYear = params['endYear'] || null;
+        const username = this.userService.username;
+
+        // Now you can use these parameters to fetch and display the relevant books
+        console.log('Category:', category);
+        console.log('ISBN:', isbn);
+        console.log('Title:', title);
+        console.log('Author:', author);
+        console.log('Publisher:', publisher);
+        console.log('Start Year:', startYear);
+        console.log('End Year:', endYear);
+        console.log(username)
+    this.bookService.getBooks().subscribe(books => {
+      this.dummy_data = books;
+    });
+      });
+
+    }
     this.bookService.getBooks().subscribe(books => {
       this.dummy_data = books;
     });

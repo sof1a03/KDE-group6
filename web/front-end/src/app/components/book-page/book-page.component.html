@@ -1,0 +1,26 @@
+<div class="container">
+  <div class="row">
+    <div class="col-md-6">
+      <h2>{{ book.name }}</h2>
+      <ul>
+        <li><strong>Author:</strong> {{ book.author }}</li>
+        <li><strong>Genre:</strong> {{ book.genres }}</li>
+        <li><strong>Published:</strong> {{ book.publisher }}</li>
+        <li><strong>ISBN:</strong> {{ book.ISBN}}</li>
+        </ul>
+    </div>
+    <div class="col-md-4">
+      <img src="{{ book.url }}" class="img-fluid" alt="{{ book.name }}">
+    </div>
+  </div>
+
+  <div class="row mt-4">
+    <div class="col-md-12">
+      <h3>More like this:</h3>
+      <div class="row no-gutters">
+        <div *ngFor="let recBook of relatedBooks" class="col-md-4">
+          <app-book-card [image_url]="recBook.url" [title]="recBook.name" [author]="recBook.author" [publisher]="recBook.publisher" [year]="recBook.year" [ISBN]="recBook.ISBN" [genres]="recBook.genres" [id]="recBook.id"></app-book-card>        </div>
+      </div>
+    </div>
+  </div>
+</div>

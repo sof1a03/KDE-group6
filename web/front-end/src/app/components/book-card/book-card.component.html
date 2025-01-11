@@ -1,0 +1,40 @@
+<div class="card p-1" style="width: 10rem">
+  <img src="{{image_url}}" class="card-img-top" alt="...">
+  <div class="card-body">
+    <div class="card-title" style="font-size: 13px;">{{title}}</div>
+  <button type="button"
+    class="btn btn-outline-secondary btn-sm"
+    data-bs-toggle="modal"
+    [attr.data-bs-target]="'#exampleModal' + id"
+  >
+    Read more
+  </button>
+  </div>
+</div>
+
+<div class="modal fade" [attr.id]="'exampleModal' + id" tabindex="-1" [attr.aria-labelledby]="'exampleModalLabel' + id" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">{{title}}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <b>Author:</b>
+          {{author}} <br>
+        <b>Publisher:</b>
+          {{publisher}} <br>
+        <b>Year:</b>
+          {{year}} <br>
+        <b>ISBN:</b>
+          {{ISBN}} <br>
+        <b>genres:</b>
+          {{genres}} <br>
+      </div>
+      <div class="modal-footer">
+        <a href="book/{{id}}" type="button" class="btn btn-secondary">Book page</a>
+        <button type="button" class="btn btn-primary" (click)="onLike()">Like</button>
+      </div>
+    </div>
+  </div>
+</div>

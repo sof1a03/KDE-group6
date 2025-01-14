@@ -12,7 +12,7 @@
 3. `ng serve`
 
 
-##Running The DB
+## Running The DB
 1. `Download the latest version of Jena Apache Jena Fuseki.zip from the the link:`
    `https://jena.apache.org/download/index.cgi`
 3. `Extract the Zip file`

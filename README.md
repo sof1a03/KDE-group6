@@ -19,3 +19,33 @@
 4. `Open the extracted folder in your command prompt and run the following command`
    `java -jar fuseki-server.jar`
 5. `create the DB by basically uploading the owlshelves.ttl`
+
+## Here are the key API endpoints:
+
+    Server Management
+
+        GET /$/server - Get server status.
+
+        GET /$/datasets - List all datasets.
+
+        POST /$/datasets - Create a new dataset.
+
+        DELETE /$/datasets/{dataset} - Delete a dataset.
+
+    Dataset Operations
+
+        GET /{dataset}/data - Retrieve data from a dataset.
+
+        POST /{dataset}/data - Add data to a dataset.
+
+        PUT /{dataset}/data - Replace data in a dataset.
+
+        DELETE /{dataset}/data - Delete data from a dataset.
+
+    SPARQL Queries
+
+        GET /{dataset}/query - Execute a SPARQL query.
+
+        POST /{dataset}/query - Execute a SPARQL query (using POST).
+
+        POST /{dataset}/update - Execute a SPARQL update.

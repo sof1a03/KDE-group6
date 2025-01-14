@@ -10,3 +10,12 @@
 1. `cd web/front-end/` 
 2. `npm -i`
 3. `ng serve`
+
+
+##Running The DB
+1. `Download the latest version of Jena Apache Jena Fuseki.zip from the the link:`
+   `https://jena.apache.org/download/index.cgi`
+3. `Extract the Zip`
+4. `Open the extracted folder ini command prompt and run the following command`
+   `java -jar fuseki-server.jar`
+5. `create the DB by basically uploading the owlshelves.ttl`

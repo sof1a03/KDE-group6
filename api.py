@@ -157,6 +157,8 @@ def search_books(
     isbn: Optional[str] = None,
     title: Optional[str] = None,
     author: Optional[str] = None,
+    publisher: Optional[str] = None,  
+    categories: Optional[List[str]] = Query(None), 
     start_year: Optional[int] = None,
     end_year: Optional[int] = None,
     pageSize: int = 10,
@@ -164,6 +166,8 @@ def search_books(
 ):
     query = """
     PREFIX ex: <http://example.org/owlshelves#>
+    PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
     SELECT ?book ?title ?author ?ISBN ?publisher ?year WHERE {
         ?book ex:hasTitle ?title .
         OPTIONAL { ?book ex:hasAuthor ?author . }
@@ -181,6 +185,17 @@ def search_books(
     if author:
         query += f'FILTER regex(?author, "{author}", "i") .'
 
+    if publisher:
+        query += f'FILTER regex(?publisher, "{publisher}", "i") .'
+
+    if categories:
+        query += "{"  
+        for i, category in enumerate(categories):
+            if i > 0:
+                query += " UNION " 
+            query += f'{{ ?book ex:hasGenre "{category}"^^xsd:string . }}'
+        query += "}" 
+
     if start_year:
         query += f'?book ex:hasYearOfPublication ?year . FILTER(?year >= {start_year}) .'
 
@@ -189,9 +204,10 @@ def search_books(
 
     query += f"}} LIMIT {pageSize} OFFSET {(pageNum - 1) * pageSize}"
     print(query)
-
+    
     try:
         results = execute_sparql_query(query)
+ 
         books = []
         for binding in results["results"]["bindings"]:
             book = {

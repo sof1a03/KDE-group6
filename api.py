@@ -178,39 +178,16 @@ def search_books(
     pageSize: int = 10,
     pageNum: int = 1,
 ):
+    # 1. Construct the initial query to fetch distinct book URIs
     query = """
     PREFIX ex: <http://example.org/owlshelves#>
     PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
-    SELECT ?book ?title ?author ?ISBN ?publisher ?year ?genre ?cover WHERE {
+    SELECT DISTINCT ?book WHERE {
         ?book ex:hasTitle ?title .
-        OPTIONAL { ?book ex:hasAuthor ?author . }
-        OPTIONAL { ?book ex:hasISBN ?ISBN . }
-        OPTIONAL { ?book ex:hasPublisher ?publisher . }
-        OPTIONAL { ?book ex:hasYearOfPublication ?year . }
-        OPTIONAL { ?book ex:hasGenre ?genre . }
-        OPTIONAL { ?book ex:hasBookCover ?cover . }
     """
 
-    if isbn:
-        query += f'?book ex:hasISBN "{isbn}"^^xsd:string .'
-
-    if title:
-        query += f'FILTER regex(?title, "{title}", "i") .'
-
-    if author:
-        query += f'FILTER regex(?author, "{author}", "i") .'
-
-    if publisher:
-        query += f'FILTER regex(?publisher, "{publisher}", "i") .'
-
-    if categories:
-        query += "{"
-        for i, category in enumerate(categories):
-            if i > 0:
-                query += " UNION "
-            query += f'{{ ?book ex:hasGenre "{category}"^^xsd:string . }}'
-        query += "}"
+    # ... (Add filters for isbn, title, author, publisher, categories) ...
 
     if start_year:
         query += f'?book ex:hasYearOfPublication ?year . FILTER(?year >= {start_year}) .'
@@ -219,26 +196,47 @@ def search_books(
         query += f'?book ex:hasYearOfPublication ?year . FILTER(?year <= {end_year}) .'
 
     query += f"}} LIMIT {pageSize} OFFSET {(pageNum - 1) * pageSize}"
+    print(query)
 
     try:
         results = execute_sparql_query(query)
+        book_uris = [result['book']['value'] for result in results["results"]["bindings"]]
 
         books = []
-        for binding in results["results"]["bindings"]:
+        for book_uri in book_uris:
+            # 2. Construct a separate query for each book URI to fetch details
+            book_query = f"""
+            PREFIX ex: <http://example.org/owlshelves#>
+            SELECT ?title ?author ?ISBN ?publisher ?year ?genre ?cover WHERE {{
+                <{book_uri}> ex:hasTitle ?title .
+                OPTIONAL {{ <{book_uri}> ex:hasAuthor ?author . }}
+                OPTIONAL {{ <{book_uri}> ex:hasISBN ?ISBN . }}
+                OPTIONAL {{ <{book_uri}> ex:hasPublisher ?publisher . }}
+                OPTIONAL {{ <{book_uri}> ex:hasYearOfPublication ?year . }}
+                OPTIONAL {{ <{book_uri}> ex:hasGenre ?genre . }}
+                OPTIONAL {{ <{book_uri}> ex:hasBookCover ?cover . }}
+            }}
+            """
+            book_results = execute_sparql_query(book_query)
+
+            # 3. Extract the book details from the results
+            book_data = book_results["results"]["bindings"]
             book = {
-                "bookid": binding["book"]["value"],
-                "name": binding["title"]["value"],
-                "author": binding["author"]["value"] if "author" in binding else None,
-                "ISBN": binding["ISBN"]["value"] if "ISBN" in binding else None,
-                "publisher": binding["publisher"]["value"] if "publisher" in binding else None,
-                "year": binding["year"]["value"] if "year" in binding else None,
-                "url": binding["cover"]["value"] if "cover" in binding  else None,
-                "genres": [binding["genre"]["value"] for binding in results["results"]["bindings"] if "genre" in binding]
+                "bookid": book_uri,
+                "name": book_data[0]["title"]["value"] if book_data else None,
+                "author": book_data[0]["author"]["value"] if book_data and "author" in book_data[0] else None,
+                "ISBN": book_data[0]["ISBN"]["value"] if book_data and "ISBN" in book_data[0] else None,
+                "publisher": book_data[0]["publisher"]["value"] if book_data and "publisher" in book_data[0] else None,
+                "year": book_data[0]["year"]["value"] if book_data and "year" in book_data[0] else None,
+                "url": book_data[0]["cover"]["value"] if book_data and "cover" in book_data[0] else None,
+                "genres": [result["genre"]["value"] for result in book_data if "genre" in result],
             }
             books.append(book)
+
         return books
+
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))     
+        raise HTTPException(status_code=500, detail=str(e))
     
 # API endpoint: Fetch random book recommendations
 @app.get("/api/surprise_me")

@@ -5,8 +5,23 @@ from pykeen.triples import TriplesFactory
 from node2vec import Node2Vec
 import torch
 import random
+from fastapi.middleware.cors import CORSMiddleware
+
 
 app = FastAPI()
+
+origins = [
+    "http://localhost:4200"
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 # Configuration for GraphDB and file paths
 GRAPHDB_SPARQL_ENDPOINT = "http://localhost:3030/owlshelvesbig/sparql" #needs to put the db endpoint

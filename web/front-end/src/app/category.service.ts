@@ -8,7 +8,7 @@ import { Observable } from 'rxjs';
 })
 export class CategoryService {
 
-  private apiUrl = 'api/categories'; // Replace with your actual API endpoint
+  private apiUrl = '127.0.0.1:8000/api/categories';
 
   constructor(private http: HttpClient) { }
 

@@ -19,22 +19,60 @@ export interface Book {
   providedIn: 'root'
 })
 export class BookService {
-  private apiUrl = 'api/books'; // Replace with your actual API endpoint
+  private apiUrl = 'http://127.0.0.1:8000/api/search';
 
   constructor(private http: HttpClient) { }
 
-  // Should return paged results of size 9
   getBooks(): Observable<Book[]> {
     return this.http.get<Book[]>(this.apiUrl);
   }
 
-  // Should return individual book
   getBook(id: string): Observable<Book> {
-    const url = `api/books/${id}`;
-    return this.http.get<Book>(url);
+    return this.http.get<Book>(this.apiUrl);
   }
 
-  // Query for more books like the book with ID
+  searchBooks(
+    isbn?: string,
+    title?: string,
+    author?: string,
+    publisher?: string,
+    categories?: string[],
+    startYear?: string,
+    endYear?: string,
+    pageSize: number = 10,
+    pageNum: number = 1
+  ): Observable<Book> {
+    console.log(this.http)
+    let params = new HttpParams()
+      .set('pageSize', pageSize.toString())
+      .set('pageNum', pageNum.toString());
+
+    if (isbn) {
+      params = params.set('isbn', isbn);
+    }
+    if (title) {
+      params = params.set('title', title);
+    }
+    if (author) {
+      params = params.set('author', author);
+    }
+    if (publisher) {
+      params = params.set('publisher', publisher);  // Add publisher to params
+    }
+    if (categories) {
+      categories.forEach(category => {
+        params = params.append('categories', category);  // Append each category to params
+      });
+    }
+    if (startYear) {
+      params = params.set('start_year', startYear.toString());
+    }
+    if (endYear) {
+      params = params.set('end_year', endYear.toString());
+    }
+    return this.http.get<Book>(this.apiUrl, { params });
+  }
+
   getMoreLike(id: string, page?: number, pagesize?: number): Observable<Book[]>{
     // Dummy code, replace later with proper API
     if (page !== undefined && pagesize !== undefined ){

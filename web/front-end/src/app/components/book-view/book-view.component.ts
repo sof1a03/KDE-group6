@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, numberAttribute, OnInit } from '@angular/core';
 import { BookCardComponent } from "../book-card/book-card.component";
 import { CommonModule } from '@angular/common';
 import { BookService } from '../../book-service';
@@ -22,26 +22,32 @@ export class BookViewComponent implements OnInit {
     private router: Router,
     private userService: UserService) { }
 
-  ngOnInit() {
-    if (this.router.url.startsWith('/search')){
-      this.route.queryParams.subscribe(params => {
-        const categories = params['categories'] || null; // Provide a default value (null or '') if not present
-        const isbn = params['isbn'] || null;
-        const title = params['title'] || null;
-        const author = params['author'] || null;
-        const publisher = params['publisher'] || null;
-        const startYear = params['startYear'] || null;
-        const endYear = params['endYear'] || null;
-        const username = this.userService.username;
+    ngOnInit() {
+      if (this.router.url.startsWith('/search')) {
+        this.route.queryParams.subscribe(params => {
+          const categories = params['categories'] || null;
+          const isbn = params['isbn'] || null;
+          const title = params['title'] || null;
+          const author = params['author'] || null;
+          const publisher = params['publisher'] || null;
+          const startYear = params['startYear'] || null;
+          const endYear = params['endYear'] || null;
+          const username = this.userService.username;
 
-    this.bookService.getBooks().subscribe(books => {
-      this.dummy_data = books;
-    });
+          // Call searchBooks with the extracted parameters
+          this.bookService.searchBooks(
+            isbn, title, author, publisher, categories,startYear, endYear
+          ).subscribe(books => {
+            console.log("books:")
+            console.log(books);
+//            this.dummy_data = books;
+          });
+         });
+    } else {
+      this.bookService.getBooks().subscribe(books => {
+        this.dummy_data = books;
       });
 
     }
-    this.bookService.getBooks().subscribe(books => {
-      this.dummy_data = books;
-    });
   }
 }

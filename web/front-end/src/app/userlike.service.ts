@@ -20,7 +20,6 @@ export class UserlikeService {
 
   likeBook(bookid: string, userid: string): Observable<string> {
     const url = `api/likes/${bookid}`;
-    console.log(bookid, userid)
     return this.http.post<string>(url,
       {userid: userid,
         bookid: bookid

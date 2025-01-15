@@ -17,6 +17,8 @@ DEFAULT_PAGE_SIZE = 10  # Default number of results per page for pagination
 # Initialize TransE and Node2Vec models
 transe_model = None
 node2vec_model = None
+categories = []
+
 
 # Load TransE model
 def load_transe_model():
@@ -246,3 +248,24 @@ def load_models():
     """
     load_transe_model()  # Load the TransE model
     load_node2vec_embeddings()  # Load the Node2Vec embeddings
+
+@app.on_event("startup")
+def retrieve_categories():  # Function name updated
+  """Executes the SPARQL query and stores the results in the global variable."""
+  global categories
+
+  query = """
+    PREFIX ex: <http://example.org/owlshelves#>
+
+    SELECT ?genre (COUNT(?book) AS ?bookCount) WHERE {
+      ?book ex:hasGenre ?genre .
+    }
+    GROUP BY ?genre 
+    HAVING (?bookCount > 1) 
+    ORDER BY desc(?bookCount)
+  """
+  results = execute_sparql_query(query)
+
+  for result in results["results"]["bindings"]:
+    genre = result["genre"]["value"]
+    categories.append(genre)

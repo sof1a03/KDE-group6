@@ -239,6 +239,15 @@ def surprise_me(userid: Optional[str] = None, top_n: int = 5):
         return {"surprise_me": available_books[:top_n]} # Return random recommendations
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    
+    
+@app.get("/api/categories")  # New categories endpoint
+def get_categories():
+    """
+    Returns the list of categories.
+    """
+    return {"categories": categories[:1000]}
+
 
 # Load models on startup
 @app.on_event("startup")

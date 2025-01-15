@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { UserService } from '../../user.service';
 import { Router } from '@angular/router';
 import { CategoryService } from '../../category.service';
+import { OnInit } from '@angular/core';
 
 @Component({
   selector: 'app-search-menu',
@@ -12,8 +13,9 @@ import { CategoryService } from '../../category.service';
   templateUrl: './search-menu.component.html',
   styleUrl: './search-menu.component.css'
 })
-export class SearchMenuComponent {
-  categories = ['Fiction', 'Non-Fiction', 'Mystery', 'Thriller', 'Sci-Fi', 'Romance', 'History'];
+export class SearchMenuComponent implements OnInit {
+//  categories = ['Fiction', 'Non-Fiction', 'Mystery', 'Thriller', 'Sci-Fi', 'Romance', 'History'];
+  categories: string[] = [];
   selectedCategories = [];
 
   startYear = 1900;
@@ -27,11 +29,14 @@ export class SearchMenuComponent {
     for (let year = this.endYear; year >= this.startYear; year--) {
       this.years.push(year);
     }
-    categoryService.getCategories().subscribe(categories => {
+  }
+
+  ngOnInit() {
+    this.categoryService.getCategories().subscribe(categories => {
+      console.log(categories)
       this.categories = categories;
     })
   }
-
   onSubmit() {
     // Handle form submission here (e.g., send search data to a service)
     const isbn = (<HTMLInputElement>document.getElementById('isbn')).value;

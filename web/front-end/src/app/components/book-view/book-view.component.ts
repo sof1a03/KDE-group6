@@ -16,6 +16,8 @@ import { UserService } from '../../user.service';
 export class BookViewComponent implements OnInit {
   lorem = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
   data: Book[] = [];
+  currentPage = 1;
+  pageSize = 10;
 
   constructor(private bookService: BookService,
     private route: ActivatedRoute,
@@ -36,7 +38,7 @@ export class BookViewComponent implements OnInit {
 
           // Call searchBooks with the extracted parameters
           this.bookService.searchBooks(
-            isbn, title, author, publisher, categories,startYear, endYear
+            isbn, title, author, publisher, categories,startYear, endYear, this.pageSize, this.currentPage
           ).subscribe(books => {
             this.data = books;
             console.log(this.data)
@@ -46,4 +48,26 @@ export class BookViewComponent implements OnInit {
       console.log('else')
     }
   }
+  onPageChange(pageNumber: number) {
+    this.currentPage = pageNumber;
+    if (this.router.url.startsWith('/search')) {
+      this.route.queryParams.subscribe(params => {
+        const categories = params['categories'] || null;
+        const isbn = params['isbn'] || null;
+        const title = params['title'] || null;
+        const author = params['author'] || null;
+        const publisher = params['publisher'] || null;
+        const startYear = params['startYear'] || null;
+        const endYear = params['endYear'] || null;
+
+        this.bookService.searchBooks(
+          isbn, title, author, publisher, categories,startYear, endYear, this.pageSize, this.currentPage
+        ).subscribe(books => {
+          this.data = books;
+          console.log(this.data)
+      });
+    });
+  }
+  }
+
 }

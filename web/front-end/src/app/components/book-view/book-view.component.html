@@ -1,5 +1,15 @@
 <div class="row row-cols-sm-3 g-2" *ngIf="data.length > 0">
-    <div *ngFor="let book of data" class="col">
-  <app-book-card [image_url]="book.url" [title]="book.name" [author]="book.author" [publisher]="book.publisher" [year]="book.year" [ISBN]="book.ISBN" [genres]="book.genres" [id]="book.id"></app-book-card>
-   </div>
+  <div *ngFor="let book of data" class="col">
+    <app-book-card
+      [image_url]="book.url"
+      [title]="book.name"
+      [author]="book.author"
+      [publisher]="book.publisher"
+      [year]="book.year"
+      [ISBN]="book.ISBN"
+      [genres]="book.genres"
+      [id]="book.id">
+    </app-book-card>
+  </div>
 </div>
+<button type="button" class="btn btn-primary" (click)="onPageChange(this.currentPage + 1)">Next</button>

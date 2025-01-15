@@ -41,7 +41,7 @@ export class BookService {
     endYear?: string,
     pageSize: number = 10,
     pageNum: number = 1
-  ): Observable<Book> {
+  ): Observable<Book[]> {
     console.log(this.http)
     let params = new HttpParams()
       .set('pageSize', pageSize.toString())
@@ -70,7 +70,7 @@ export class BookService {
     if (endYear) {
       params = params.set('end_year', endYear.toString());
     }
-    return this.http.get<Book>(this.apiUrl, { params });
+    return this.http.get<Book[]>(this.apiUrl, { params });
   }
 
   getMoreLike(id: string, page?: number, pagesize?: number): Observable<Book[]>{

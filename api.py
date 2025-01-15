@@ -166,14 +166,13 @@ def similar_books(bookid: str, top_n: int = 5):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-# API endpoint: Search for books
 @app.get("/api/search")
 def search_books(
     isbn: Optional[str] = None,
     title: Optional[str] = None,
     author: Optional[str] = None,
-    publisher: Optional[str] = None,  
-    categories: Optional[List[str]] = Query(None), 
+    publisher: Optional[str] = None,
+    categories: Optional[List[str]] = Query(None),
     start_year: Optional[int] = None,
     end_year: Optional[int] = None,
     pageSize: int = 10,
@@ -183,12 +182,14 @@ def search_books(
     PREFIX ex: <http://example.org/owlshelves#>
     PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
-    SELECT ?book ?title ?author ?ISBN ?publisher ?year WHERE {
+    SELECT ?book ?title ?author ?ISBN ?publisher ?year ?genre ?cover WHERE {
         ?book ex:hasTitle ?title .
         OPTIONAL { ?book ex:hasAuthor ?author . }
         OPTIONAL { ?book ex:hasISBN ?ISBN . }
         OPTIONAL { ?book ex:hasPublisher ?publisher . }
         OPTIONAL { ?book ex:hasYearOfPublication ?year . }
+        OPTIONAL { ?book ex:hasGenre ?genre . }
+        OPTIONAL { ?book ex:hasBookCover ?cover . }
     """
 
     if isbn:
@@ -204,12 +205,12 @@ def search_books(
         query += f'FILTER regex(?publisher, "{publisher}", "i") .'
 
     if categories:
-        query += "{"  
+        query += "{"
         for i, category in enumerate(categories):
             if i > 0:
-                query += " UNION " 
+                query += " UNION "
             query += f'{{ ?book ex:hasGenre "{category}"^^xsd:string . }}'
-        query += "}" 
+        query += "}"
 
     if start_year:
         query += f'?book ex:hasYearOfPublication ?year . FILTER(?year >= {start_year}) .'
@@ -218,26 +219,26 @@ def search_books(
         query += f'?book ex:hasYearOfPublication ?year . FILTER(?year <= {end_year}) .'
 
     query += f"}} LIMIT {pageSize} OFFSET {(pageNum - 1) * pageSize}"
-    print(query)
-    
+
     try:
         results = execute_sparql_query(query)
- 
+
         books = []
         for binding in results["results"]["bindings"]:
             book = {
                 "bookid": binding["book"]["value"],
-                "title": binding["title"]["value"],
+                "name": binding["title"]["value"],
                 "author": binding["author"]["value"] if "author" in binding else None,
                 "ISBN": binding["ISBN"]["value"] if "ISBN" in binding else None,
                 "publisher": binding["publisher"]["value"] if "publisher" in binding else None,
-                "year": binding["year"]["value"] if "year" in binding else None
+                "year": binding["year"]["value"] if "year" in binding else None,
+                "url": binding["cover"]["value"] if "cover" in binding  else None,
+                "genres": [binding["genre"]["value"] for binding in results["results"]["bindings"] if "genre" in binding]
             }
             books.append(book)
-        return {"results": books}
+        return books
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-    
+        raise HTTPException(status_code=500, detail=str(e))     
     
 # API endpoint: Fetch random book recommendations
 @app.get("/api/surprise_me")

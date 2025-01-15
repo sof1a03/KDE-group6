@@ -15,7 +15,7 @@ import { UserService } from '../../user.service';
 })
 export class BookViewComponent implements OnInit {
   lorem = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
-  dummy_data: Book[] = [];
+  data: Book[] = [];
 
   constructor(private bookService: BookService,
     private route: ActivatedRoute,
@@ -38,16 +38,12 @@ export class BookViewComponent implements OnInit {
           this.bookService.searchBooks(
             isbn, title, author, publisher, categories,startYear, endYear
           ).subscribe(books => {
-            console.log("books:")
-            console.log(books);
-//            this.dummy_data = books;
+            this.data = books;
+            console.log(this.data)
+          })
           });
-         });
     } else {
-      this.bookService.getBooks().subscribe(books => {
-        this.dummy_data = books;
-      });
-
+      console.log('else')
     }
   }
 }

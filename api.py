@@ -185,6 +185,7 @@ def search_books(
 
     SELECT DISTINCT ?book WHERE {
         ?book ex:hasTitle ?title .
+        ?book ex:hasBookCover ?cover . 
     """
 
     # ... (Add filters for isbn, title, author, publisher, categories) ...

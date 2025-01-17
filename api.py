@@ -4,9 +4,13 @@ from SPARQLWrapper import SPARQLWrapper, JSON
 from pykeen.triples import TriplesFactory
 from node2vec import Node2Vec
 import torch
+import rdflib
 import random
 from fastapi.middleware.cors import CORSMiddleware
+import numpy as np
+import pickle
 
+global triples_factory
 
 app = FastAPI()
 
@@ -29,11 +33,40 @@ TRANSE_MODEL_DIR = "transe_model_output" # Directory where the TransE model is s
 NODE2VEC_EMBEDDINGS_PATH = "node2vec_embeddings.vec" # File path to Node2Vec embeddings
 DEFAULT_PAGE_SIZE = 10  # Default number of results per page for pagination
 
+
 # Initialize TransE and Node2Vec models
 transe_model = None
 node2vec_model = None
 categories = []
 
+
+def load_rdf_as_triples(rdf_file_path):
+    rdf_graph = rdflib.Graph()
+    rdf_graph.parse(rdf_file_path, format="turtle") 
+    triples = [(str(subj), str(pred), str(obj)) for subj, pred, obj in rdf_graph]
+    return triples
+rdf_file_path = "./OwlshelvesFinal_RDF.ttl"
+triples_factory_path = "./triples_factory.pkl"
+
+"""
+try:
+    print("Loading pre-computed triples factory...")
+    with open(triples_factory_path, "rb") as f:
+        triples_factory = pickle.load(f)
+    print("Triples factory loaded successfully!")
+
+except FileNotFoundError:
+    print("Pre-computed triples factory not found. Loading triples...")
+    triples = load_rdf_as_triples(rdf_file_path)
+    triples_array = np.array([[s, p, o] for s, p, o in triples], dtype=str)
+    triples_factory = TriplesFactory.from_labeled_triples(triples=triples_array)
+
+    print("Saving triples factory for future use...")
+    with open(triples_factory_path, "wb") as f:
+        pickle.dump(triples_factory, f)
+    print("Triples factory saved successfully!")
+    
+"""
 
 # Load TransE model
 def load_transe_model():
@@ -106,6 +139,30 @@ def predict_top_books_transe(user_id, top_n=5):
     top_books = sorted(similarities, key=lambda x: x[1], reverse=True)[:top_n]
     return [book for book, _ in top_books]
 
+def predict_similar_books(book_id, triples_factory, model, top_n=5):
+    """
+    Predict books similar to the given book_id based on embeddings.
+    """
+    entity_embeddings = model.entity_representations[0]
+    all_entities = list(triples_factory.entity_to_id.keys())
+    
+    if book_id not in triples_factory.entity_to_id:
+        raise ValueError(f"Book ID {book_id} not found in the entity set!")
+    
+    book_idx = triples_factory.entity_to_id[book_id]
+    book_embedding = entity_embeddings(torch.tensor(book_idx)).detach().numpy()
+    
+    similarities = []
+    for entity in all_entities:
+        if "book" in entity:  # Ensure only books are considered
+            entity_idx = triples_factory.entity_to_id[entity]
+            entity_embedding = entity_embeddings(torch.tensor(entity_idx)).detach().numpy()
+            similarity = -((book_embedding - entity_embedding) ** 2).sum()  # Euclidean distance
+            similarities.append((entity, similarity))
+    
+    # Sort by similarity and return top_n similar books
+    similarities = sorted(similarities, key=lambda x: x[1], reverse=True)
+    return [entity for entity, _ in similarities[:top_n]]
 
 def predict_similar_books_node2vec(book_id, top_n=5):
     """
@@ -125,19 +182,55 @@ def predict_similar_books_node2vec(book_id, top_n=5):
     except KeyError:
         raise HTTPException(status_code=404, detail=f"Book ID {book_id} not found in Node2Vec embeddings")
 
+def compute_virtual_user_embedding(book_ids, triples_factory, model):
+    entity_embeddings = model.entity_representations[0]
+    
+    book_indices = [
+        triples_factory.entity_to_id[book_id] for book_id in book_ids if book_id in triples_factory.entity_to_id
+    ]
+    if not book_indices:
+        raise ValueError("None of the provided book IDs exist in the entity set!")
+    
+    # Get embeddings for the provided books
+    book_embeddings = torch.stack([entity_embeddings(torch.tensor(idx)) for idx in book_indices])
+    
+    # Compute virtual user embedding (e.g., mean of book embeddings)
+    virtual_user_embedding = book_embeddings.mean(dim=0)
+    return virtual_user_embedding
+
+def predict_top_books_for_virtual_user(virtual_user_embedding, triples_factory, model, top_n=5):
+    entity_embeddings = model.entity_representations[0]
+    all_entities = list(triples_factory.entity_to_id.keys())
+    
+    similarities = []
+    for entity in all_entities:
+        if "book" in entity:  # Ensure only books are considered
+            entity_idx = triples_factory.entity_to_id[entity]
+            entity_embedding = entity_embeddings(torch.tensor(entity_idx)).detach().numpy()
+            similarity = -((virtual_user_embedding.detach().numpy() - entity_embedding) ** 2).sum()
+            similarities.append((entity, similarity))
+    
+    # Sort by similarity and return top_n books
+    similarities = sorted(similarities, key=lambda x: x[1], reverse=True)
+    return [entity for entity, _ in similarities[:top_n]]
+
 @app.get("/api/recommended_books")
-def recommended_books(userid: str, top_n: int = 5):
+def recommended_books(book_ids: List[str] = Query(None), top_n: int = 5):
     """
     Fetch personalized book recommendations for a user using TransE and demographics.
     Args:
-        userid (str): The ID of the user.
+        book_ids (str): IDs of books the user likes.
         top_n (int): Number of recommendations to return.
     Returns:
-        dict: A dictionary with the user ID and recommended books.
+        list: Book ids of recommended books.
     """
+    global triples_factory
+    for i in range(len(book_ids)):
+        book_ids[i] = f"http://example.org/book_{book_ids[i]}"
+    virtual_user_embedding = compute_virtual_user_embedding(book_ids, triples_factory, transe_model)
     try:
-        recommendations = predict_top_books_transe(userid, top_n=top_n)
-        return {"userid": userid, "recommendations": recommendations}
+        recommended_books = predict_top_books_for_virtual_user(virtual_user_embedding, triples_factory, transe_model, top_n=top_n)
+        return recommended_books
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     
@@ -205,6 +298,7 @@ def search_books(
     query += f" LIMIT {pageSize} OFFSET {(pageNum - 1) * pageSize}"
 
     try:
+        print(query)
         results = execute_sparql_query(query)
         book_uris = [result['book']['value'] for result in results["results"]["bindings"]]
 

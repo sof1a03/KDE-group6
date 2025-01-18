@@ -1,30 +1,44 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UserlikeService {
 
+  private userLikes: { [username: string]: { [bookId: string]: string} } = {};
 
-  private apiUrl = 'localhost/likes'; // Replace with your actual API endpoint
-
-  constructor(private http: HttpClient) { }
-
-  // Should return paged results of size 9
-  getLikes(userid: string): Observable<string[]> {
-    const url = `api/likes/${userid}`;
-    return this.http.get<string[]>(url);
+  constructor(private http: HttpClient) {
+    const storedLikes = localStorage.getItem('userLikes');
+    if (storedLikes) {
+      this.userLikes = JSON.parse(storedLikes);
+    }
   }
 
-  likeBook(bookid: string, userid: string): Observable<string> {
-    const url = `api/likes/${bookid}`;
-    return this.http.post<string>(url,
-      {userid: userid,
-        bookid: bookid
-      }
-    );
+  like(username: string, bookId: string, bookTitle: string): void {
+    if (!this.userLikes[username]) {
+      this.userLikes[username] = {};
+    }
+    this.userLikes[username][bookId] = bookTitle;
+    localStorage.setItem('userLikes', JSON.stringify(this.userLikes));
+    console.log(this.userLikes)
   }
+
+  hasLiked(username: string, bookId: string): boolean {
+    return this.userLikes[username] && this.userLikes[username][bookId] !== "";
+  }
+
+  getLikedBooks(username: string): { bookId: string, bookTitle: string }[] {
+    if (this.userLikes[username]) {
+      return Object.entries(this.userLikes[username]).map(([bookId, bookTitle]) => ({ bookId, bookTitle }));
+    }
+    return [];
+  }
+
+  removeLike(username: string, bookId: string): void {
+    if (this.userLikes[username]) {
+      delete this.userLikes[username][bookId];
+      localStorage.setItem('userLikes', JSON.stringify(this.userLikes));
+    }
 }
-
+}

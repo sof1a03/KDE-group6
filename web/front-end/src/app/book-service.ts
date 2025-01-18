@@ -6,7 +6,7 @@ import { HttpParams } from '@angular/common/http';
 export interface Book {
   name: string;
   url: string;
-  id: string;
+  bookid: string;
   genres: string[];
   publisher: string;
   year: number;
@@ -20,6 +20,7 @@ export interface Book {
 })
 export class BookService {
   private apiUrl = 'http://127.0.0.1:8000/api/search';
+  private apiUrlRecs = 'http://127.0.0.1:8000/api/recommended_books';
 
   constructor(private http: HttpClient) { }
 
@@ -57,11 +58,11 @@ export class BookService {
       params = params.set('author', author);
     }
     if (publisher) {
-      params = params.set('publisher', publisher);  // Add publisher to params
+      params = params.set('publisher', publisher);
     }
     if (categories) {
       categories.forEach(category => {
-        params = params.append('categories', category);  // Append each category to params
+        params = params.append('categories', category);
       });
     }
     if (startYear) {
@@ -73,14 +74,12 @@ export class BookService {
     return this.http.get<Book[]>(this.apiUrl, { params });
   }
 
-  getMoreLike(id: string, page?: number, pagesize?: number): Observable<Book[]>{
-    // Dummy code, replace later with proper API
-    if (page !== undefined && pagesize !== undefined ){
-      const params = new HttpParams()
-      .set('page', page.toString())
-      .set('pageSize', pagesize.toString());
-      return this.http.get<Book[]>(this.apiUrl, {params});
-    }
-      return this.http.get<Book[]>(this.apiUrl);
-  }
-}
+  getRecommendations(bookIds: string[]): Observable<Book[]> {
+    let params = new HttpParams();
+    bookIds.forEach(bookid=> {
+      params = params.append('book_ids', bookid);
+    });
+    return this.http.get<Book[]>(this.apiUrlRecs, {
+
+      params: params.set('top_n', '100')    });
+  }}

@@ -1,6 +1,6 @@
 <form (ngSubmit)="onSubmit()">
   <div class="form-group">
-    <label for="categories"><b>Categories:</b></label>
+    <label for="categories"><b>Categories: (Hold ctrl / cmd to select multiple)</b></label>
     <select class="form-control" id="categories" multiple [(ngModel)]="selectedCategories" name="categories">
       <option *ngFor="let category of categories" [value]="category">{{ category }}</option>
     </select>

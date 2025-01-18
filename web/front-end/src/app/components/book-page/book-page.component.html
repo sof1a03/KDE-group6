@@ -16,11 +16,6 @@
 
   <div class="row mt-4">
     <div class="col-md-12">
-      <h3>More like this:</h3>
-      <div class="row no-gutters">
-        <div *ngFor="let recBook of relatedBooks" class="col-md-4">
-          <app-book-card [image_url]="recBook.url" [title]="recBook.name" [author]="recBook.author" [publisher]="recBook.publisher" [year]="recBook.year" [ISBN]="recBook.ISBN" [genres]="recBook.genres" [id]="recBook.id"></app-book-card>        </div>
-      </div>
     </div>
   </div>
 </div>

@@ -5,6 +5,7 @@ import { BookService } from '../../book-service';
 import { Book } from '../../book-service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { UserService } from '../../user.service';
+import { UserlikeService } from '../../userlike.service';
 
 @Component({
   selector: 'app-book-view',
@@ -18,11 +19,13 @@ export class BookViewComponent implements OnInit {
   data: Book[] = [];
   currentPage = 1;
   pageSize = 10;
+  likedBooks = false;
 
   constructor(private bookService: BookService,
     private route: ActivatedRoute,
     private router: Router,
-    private userService: UserService) { }
+    private userService: UserService,
+    private userLikedService: UserlikeService) { }
 
     ngOnInit() {
       if (this.router.url.startsWith('/search')) {
@@ -34,9 +37,7 @@ export class BookViewComponent implements OnInit {
           const publisher = params['publisher'] || null;
           const startYear = params['startYear'] || null;
           const endYear = params['endYear'] || null;
-          const username = this.userService.username;
 
-          // Call searchBooks with the extracted parameters
           this.bookService.searchBooks(
             isbn, title, author, publisher, categories,startYear, endYear, this.pageSize, this.currentPage
           ).subscribe(books => {
@@ -45,9 +46,25 @@ export class BookViewComponent implements OnInit {
           })
           });
     } else {
-      console.log('else')
-    }
+      if (this.router.url.startsWith('/featured'))if (this.router.url.startsWith('/featured')) {
+        const username = this.userService.username;
+        if (username && this.userLikedService.getLikedBooks(username).length > 0) {
+          this.likedBooks = true;
+          const likedBooks = this.userLikedService.getLikedBooks(username);
+          console.log(likedBooks);
+          const likedBookIds = likedBooks.map(book => book.bookId);
+          this.bookService.getRecommendations(likedBookIds).subscribe(books=> {
+            this.data = books;
+          })
+          console.log('Get recommendations here');
+        } else {
+          this.likedBooks = false;
+          console.log('Tell user to like books here');
+        }
+      }
+
   }
+}
   onPageChange(pageNumber: number) {
     this.currentPage = pageNumber;
     if (this.router.url.startsWith('/search')) {
@@ -67,7 +84,10 @@ export class BookViewComponent implements OnInit {
           console.log(this.data)
       });
     });
+  } else if (this.router.url.startsWith('/featured')) {
+    console.log("display next 10 books here");
   }
   }
-
 }
+
+

@@ -9,14 +9,10 @@
     <li class="nav-item">
       <a href="featured" class="nav-link active" aria-current="page">
         <svg class="bi me-2" width="16" height="16"><use xlink:href="featured"/></svg>
-        Recommended reads
+        Recommended me!
       </a>
     </li>
     <li>
-      <a href="#" class="nav-link link-dark">
-        <svg class="bi me-2" width="16" height="16"><use xlink:href="#table"/></svg>
-        Surprise me!
-      </a>
     </li>
    </ul>
   <hr>
@@ -33,6 +29,10 @@
       <li><a class="dropdown-item">
         <input type="text" [(ngModel)]="userService.username" placeholder="Enter username">
       </a></li>
+      <p>Liked books: </p>
+      <div *ngFor="let book of likedBooks">
+        <li><a class="dropdown-item" (click)="onRemoveLike(book.bookId)">{{book.bookTitle}}</a></li>
+      </div>
       <li><hr class="dropdown-divider"></li>
     </ul>
   </div>

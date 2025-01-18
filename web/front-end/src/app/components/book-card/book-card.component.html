@@ -5,14 +5,14 @@
   <button type="button"
     class="btn btn-outline-secondary btn-sm"
     data-bs-toggle="modal"
-    [attr.data-bs-target]="'#exampleModal' + id"
+    [attr.data-bs-target]="'#exampleModal' + bookid"
   >
     Read more
   </button>
   </div>
 </div>
 
-<div class="modal fade" [attr.id]="'exampleModal' + id" tabindex="-1" [attr.aria-labelledby]="'exampleModalLabel' + id" aria-hidden="true">
+<div class="modal fade" [attr.id]="'exampleModal' + bookid" tabindex="-1" [attr.aria-labelledby]="'exampleModalLabel' + bookid" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
@@ -32,7 +32,6 @@
           {{genres}} <br>
       </div>
       <div class="modal-footer">
-        <a href="book/{{id}}" type="button" class="btn btn-secondary">Book page</a>
         <button type="button" class="btn btn-primary" (click)="onLike()">Like</button>
       </div>
     </div>

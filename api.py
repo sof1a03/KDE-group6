@@ -9,6 +9,7 @@ import random
 from fastapi.middleware.cors import CORSMiddleware
 import numpy as np
 import pickle
+import json
 
 global triples_factory
 
@@ -48,7 +49,6 @@ def load_rdf_as_triples(rdf_file_path):
 rdf_file_path = "./OwlshelvesFinal_RDF.ttl"
 triples_factory_path = "./triples_factory.pkl"
 
-"""
 try:
     print("Loading pre-computed triples factory...")
     with open(triples_factory_path, "rb") as f:
@@ -66,7 +66,6 @@ except FileNotFoundError:
         pickle.dump(triples_factory, f)
     print("Triples factory saved successfully!")
     
-"""
 
 # Load TransE model
 def load_transe_model():
@@ -184,7 +183,8 @@ def predict_similar_books_node2vec(book_id, top_n=5):
 
 def compute_virtual_user_embedding(book_ids, triples_factory, model):
     entity_embeddings = model.entity_representations[0]
-    
+    print(triples_factory) 
+    print(book_ids)
     book_indices = [
         triples_factory.entity_to_id[book_id] for book_id in book_ids if book_id in triples_factory.entity_to_id
     ]
@@ -198,20 +198,71 @@ def compute_virtual_user_embedding(book_ids, triples_factory, model):
     virtual_user_embedding = book_embeddings.mean(dim=0)
     return virtual_user_embedding
 
+import re
+
+def is_valid_isbn(isbn):
+  """
+  Checks if a given string is a valid ISBN-10 or ISBN-13.
+  This function is the same as the one provided in the previous response.
+  """
+  isbn = isbn.replace("-", "").replace(" ", "")
+  if len(isbn) == 10:
+    return is_valid_isbn10(isbn)
+  elif len(isbn) == 13:
+    return is_valid_isbn13(isbn)
+  return False
+
+def is_valid_isbn10(isbn):
+  """
+  Checks if a given string is a valid ISBN-10.
+  This function is the same as the one provided in the previous response.
+  """
+  if not isbn[:-1].isdigit() or not (isbn[-1].isdigit() or isbn[-1] in ('X', 'x')):
+    return False
+
+  sum = 0
+  for i, digit in enumerate(isbn):
+    if digit in ('X', 'x'):
+      digit = 10
+    else:
+      digit = int(digit)
+    sum += digit * (10 - i)
+  return sum % 11 == 0
+
+def is_valid_isbn13(isbn):
+  """
+  Checks if a given string is a valid ISBN-13.
+  This function is the same as the one provided in the previous response.
+  """
+  if not isbn.isdigit():
+    return False
+
+  sum = 0
+  for i, digit in enumerate(isbn):
+    digit = int(digit)
+    sum += digit * (3 if i % 2 else 1)
+  return sum % 10 == 0
+
 def predict_top_books_for_virtual_user(virtual_user_embedding, triples_factory, model, top_n=5):
     entity_embeddings = model.entity_representations[0]
     all_entities = list(triples_factory.entity_to_id.keys())
-    
     similarities = []
+    max_id = entity_embeddings.max_id    
     for entity in all_entities:
-        if "book" in entity:  # Ensure only books are considered
+#        if "book" in entity:  # Ensure only books are considered
+        if is_valid_isbn(entity) and "rating" not in entity:  # Ensure only books are considered
+            print(entity)
             entity_idx = triples_factory.entity_to_id[entity]
+            if entity_idx >= max_id:
+                continue
             entity_embedding = entity_embeddings(torch.tensor(entity_idx)).detach().numpy()
             similarity = -((virtual_user_embedding.detach().numpy() - entity_embedding) ** 2).sum()
             similarities.append((entity, similarity))
     
     # Sort by similarity and return top_n books
+    print('hi2')
     similarities = sorted(similarities, key=lambda x: x[1], reverse=True)
+    print('hi3')
     return [entity for entity, _ in similarities[:top_n]]
 
 @app.get("/api/recommended_books")
@@ -225,14 +276,77 @@ def recommended_books(book_ids: List[str] = Query(None), top_n: int = 5):
         list: Book ids of recommended books.
     """
     global triples_factory
+   # book_ids = book_ids[0]
+    print(book_ids)
     for i in range(len(book_ids)):
-        book_ids[i] = f"http://example.org/book_{book_ids[i]}"
+        book_ids[i] = f"http://example.org/owlshelves#{book_ids[i]}"
+    print(book_ids)
     virtual_user_embedding = compute_virtual_user_embedding(book_ids, triples_factory, transe_model)
+    recommended_books = predict_top_books_for_virtual_user(virtual_user_embedding, triples_factory, transe_model, top_n=top_n)
+    print(recommended_books)
+    query = """
+    PREFIX ex: <http://example.org/owlshelves#>
+    PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+    SELECT DISTINCT ?book WHERE {
+        ?book ex:hasTitle ?title .
+        ?book ex:hasBookCover ?cover .
+        VALUES ?isbn {
+    """
+
+    for book_id in recommended_books:
+        query += f'        "{book_id}"^^xsd:string \n' 
+
+    query += """    }
+    ?book ex:hasISBN ?isbn . 
+    }
+    """
+
+    print(query)
     try:
-        recommended_books = predict_top_books_for_virtual_user(virtual_user_embedding, triples_factory, transe_model, top_n=top_n)
-        return recommended_books
+        print(query)
+        results = execute_sparql_query(query)
+        book_uris = [result['book']['value'] for result in results["results"]["bindings"]]
+
+        books = []
+        for book_uri in book_uris:
+            book_query = f"""
+            PREFIX ex: <http://example.org/owlshelves#>
+            SELECT ?title ?author ?ISBN ?publisher ?year ?genre ?cover WHERE {{
+                <{book_uri}> ex:hasTitle ?title .
+                OPTIONAL {{ <{book_uri}> ex:hasAuthor ?author . }}
+                OPTIONAL {{ <{book_uri}> ex:hasISBN ?ISBN . }}
+                OPTIONAL {{ <{book_uri}> ex:hasPublisher ?publisher . }}
+                OPTIONAL {{ <{book_uri}> ex:hasYearOfPublication ?year . }}
+                OPTIONAL {{ <{book_uri}> ex:hasGenre ?genre . }}
+                OPTIONAL {{ <{book_uri}> ex:hasBookCover ?cover . }}
+            }}
+            """
+
+            book_results = execute_sparql_query(book_query)
+
+            book_data = book_results["results"]["bindings"]
+            book = {
+                "bookid": book_uri,
+                "name": book_data[0]["title"]["value"] if book_data else None,
+                "author": book_data[0]["author"]["value"] if book_data and "author" in book_data[0] else None,
+                "ISBN": book_data[0]["ISBN"]["value"] if book_data and "ISBN" in book_data[0] else None,
+                "publisher": book_data[0]["publisher"]["value"] if book_data and "publisher" in book_data[0] else None,
+                "year": book_data[0]["year"]["value"] if book_data and "year" in book_data[0] else None,
+                "url": book_data[0]["cover"]["value"] if book_data and "cover" in book_data[0] else None,
+                "genres": [result["genre"]["value"] for result in book_data if "genre" in result],
+            }
+            books.append(book)
+
+        return books
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+#    try:
+#        recommended_books = predict_top_books_for_virtual_user(virtual_user_embedding, triples_factory, transe_model, top_n=top_n)
+#        return recommended_books
+#    except Exception as e:
+#        raise HTTPException(status_code=500, detail=str(e))
     
 @app.get("/api/similar_books")
 def similar_books(bookid: str, top_n: int = 5):

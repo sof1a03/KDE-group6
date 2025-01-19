@@ -3,65 +3,126 @@
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
 
+# Ontology Metadata
+ex:ontology rdf:type owl:Ontology ;
+    rdfs:comment "Ontology for representing books, users, and ratings in a library system." ;
+    dc:creator "Group6" ;
+    dc:title "OWL Book Ontology" ;
+    dc:date "2025-01-20"^^xsd:date ;
+    rdfs:seeAlso "https://github.com/ayesha-banu79/Owl-Ontology/blob/master/Library%20Ontology.owl" .
 
-ex:Book rdf:type owl:Class .
-ex:User rdf:type owl:Class .
-ex:Rating rdf:type owl:Class .
+# Classes
+ex:Book rdf:type owl:Class ;
+    rdfs:comment "Represents a book entity in the library system." ;
+    rdfs:label "Book" .
 
+ex:User rdf:type owl:Class ;
+    rdfs:comment "Represents a user who interacts with the library system." ;
+    rdfs:label "User" .
 
+ex:Rating rdf:type owl:Class ;
+    rdfs:comment "Represents a user's rating for a book." ;
+    rdfs:label "Rating" .
+
+ex:FictionBook rdf:type owl:Class ;
+    rdfs:subClassOf ex:Book .
+
+ex:NonFictionBook rdf:type owl:Class ;
+    rdfs:subClassOf ex:Book .
+
+# Object Properties
 ex:ratingUser rdf:type owl:ObjectProperty ;
-           rdfs:domain ex:Rating ;
-           rdfs:range ex:User .
+    rdfs:domain ex:Rating ;
+    rdfs:range ex:User ;
+    rdfs:comment "Links a rating to the user who gave it." ;
+    rdfs:label "ratingUser" .
 
 ex:ratedBook rdf:type owl:ObjectProperty ;
-           rdfs:domain ex:Rating ;
-           rdfs:range ex:Book .
+    rdfs:domain ex:Rating ;
+    rdfs:range ex:Book ;
+    rdfs:comment "Links a rating to the book being rated." ;
+    rdfs:label "ratedBook" .
 
-ex:ratingscore rdf:type owl:DatatypeProperty ;
-           rdfs:domain ex:Rating ;
-           rdfs:range xsd:integer .
-
-
-
-ex:hasUserID rdf:type owl:DatatypeProperty ;
-           rdfs:domain ex:User ;
-           rdfs:range xsd:string .
-ex:hasAge rdf:type owl:DatatypeProperty ;
-           rdfs:domain ex:User ;
-           rdfs:range xsd:float .
-
-ex:hasAgeGroup rdf:type owl:DatatypeProperty ;
-           rdfs:domain ex:User ;
-           rdfs:range xsd:string .
-
-ex:hasCountry rdf:type owl:DatatypeProperty ;
-           rdfs:domain ex:User ;
-           rdfs:range xsd:string .
-
-
-
+# Datatype Properties
 ex:hasISBN rdf:type owl:DatatypeProperty ;
-           rdfs:domain ex:Book ;
-           rdfs:range xsd:string .
+    rdfs:domain ex:Book ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Unique identifier for a book (ISBN)." ;
+    rdfs:label "hasISBN" ;
+    rdf:type owl:FunctionalProperty .
 
 ex:hasTitle rdf:type owl:DatatypeProperty ;
-           rdfs:domain ex:Book ;
-           rdfs:range xsd:string .
+    rdfs:domain ex:Book ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Title of the book." ;
+    rdfs:label "hasTitle" .
 
 ex:hasAuthor rdf:type owl:DatatypeProperty ;
-           rdfs:domain ex:Book ;
-           rdfs:range xsd:string .
-           
+    rdfs:domain ex:Book ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Author of the book." ;
+    rdfs:label "hasAuthor" .
+
 ex:hasGenre rdf:type owl:DatatypeProperty ;
-           rdfs:domain ex:Book ;
-           rdfs:range xsd:string .
+    rdfs:domain ex:Book ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Genre or category of the book." ;
+    rdfs:label "hasGenre" .
 
 ex:hasPublisher rdf:type owl:DatatypeProperty ;
-           rdfs:domain ex:Book ;
-           rdfs:range xsd:string .
+    rdfs:domain ex:Book ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Publisher of the book." ;
+    rdfs:label "hasPublisher" .
 
 ex:hasYearOfPublication rdf:type owl:DatatypeProperty ;
-           rdfs:domain ex:Book ;
-           rdfs:range xsd:float .
+    rdfs:domain ex:Book ;
+    rdfs:range xsd:float ;
+    rdfs:comment "Year the book was published." ;
+    rdfs:label "hasYearOfPublication" .
+
+ex:hasBookCover rdf:type owl:DatatypeProperty ;
+    rdfs:domain ex:Book ;
+    rdfs:range xsd:string ;
+    rdfs:comment "URL for the book's cover image." ;
+    rdfs:label "hasBookCover" .
+
+ex:hasUserID rdf:type owl:DatatypeProperty ;
+    rdfs:domain ex:User ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Unique identifier for a user." ;
+    rdfs:label "hasUserID" .
+
+ex:hasAge rdf:type owl:DatatypeProperty ;
+    rdfs:domain ex:User ;
+    rdfs:range xsd:float ;
+    rdfs:comment "Age of the user." ;
+    rdfs:label "hasAge" .
+
+ex:hasAgeGroup rdf:type owl:DatatypeProperty ;
+    rdfs:domain ex:User ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Age group of the user." ;
+    rdfs:label "hasAgeGroup" .
+
+ex:hasCountry rdf:type owl:DatatypeProperty ;
+    rdfs:domain ex:User ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Country of the user." ;
+    rdfs:label "hasCountry" .
+
+ex:ratingscore rdf:type owl:DatatypeProperty ;
+    rdfs:domain ex:Rating ;
+    rdfs:range xsd:float ;
+    rdfs:comment "Score given to a book (1-10)." ;
+    rdfs:label "ratingscore" .
+
+# Restrictions
+[ rdf:type owl:Restriction ;
+    owl:onProperty ex:hasISBN ;
+    owl:cardinality 1 ] rdfs:subClassOf ex:Book .
+
+
 

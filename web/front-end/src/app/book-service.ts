@@ -19,8 +19,8 @@ export interface Book {
   providedIn: 'root'
 })
 export class BookService {
-  private apiUrl = 'http://127.0.0.1:8000/api/search';
-  private apiUrlRecs = 'http://127.0.0.1:8000/api/recommended_books';
+  private apiUrl = 'http://localhost:8123/api/search';
+  private apiUrlRecs = 'http://localhost:8123/api/recommended_books';
 
   constructor(private http: HttpClient) { }
 

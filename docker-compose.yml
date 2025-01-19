@@ -1,0 +1,29 @@
+version: "3.9"
+services:
+  fuseki:
+    container_name: fuseki
+    build: ./fuseki
+    ports:
+      - "3030"
+    volumes: 
+      - ./fuseki/staging:/staging
+
+  python-api:
+    build: ./python-api
+    volumes:
+      - ./data:/data
+      - ./python-api:/code
+    ports:
+      - "8123:8000"
+
+  angular-frontend:
+    build: ./web/front-end
+    ports:
+      - "4234:4200"
+
+volumes:
+  data: 
+
+networks:
+  my-network:
+    driver: bridge

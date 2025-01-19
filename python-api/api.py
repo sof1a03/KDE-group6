@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query, Request
 from typing import List, Optional
 from SPARQLWrapper import SPARQLWrapper, JSON
 from pykeen.triples import TriplesFactory
@@ -15,23 +15,24 @@ global triples_factory
 
 app = FastAPI()
 
-origins = [
-    "http://localhost:4200"
-]
+origins = ["*", "http://localhost:4200/", "http://angular-frontend:4200", "localhost:4200", "angular-frontend:4200", "*host.docker.internal*", "*nginx-proxy*"]
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
-    allow_credentials=True,
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["*"] 
 )
 
 
+print("Starting API")
+
 # Configuration for GraphDB and file paths
-GRAPHDB_SPARQL_ENDPOINT = "http://localhost:3030/owlshelvesbig/sparql" #needs to put the db endpoint
-TRANSE_MODEL_DIR = "transe_model_output" # Directory where the TransE model is stored
-NODE2VEC_EMBEDDINGS_PATH = "node2vec_embeddings.vec" # File path to Node2Vec embeddings
+GRAPHDB_SPARQL_ENDPOINT = "http://fuseki:3030/owlshelvesbig/sparql" #needs to put the db endpoint
+TRANSE_MODEL_DIR = "/data/transe_model_output" # Directory where the TransE model is stored
+NODE2VEC_EMBEDDINGS_PATH = "/data/node2vec_embeddings.vec" # File path to Node2Vec embeddings
 DEFAULT_PAGE_SIZE = 10  # Default number of results per page for pagination
 
 
@@ -46,8 +47,8 @@ def load_rdf_as_triples(rdf_file_path):
     rdf_graph.parse(rdf_file_path, format="turtle") 
     triples = [(str(subj), str(pred), str(obj)) for subj, pred, obj in rdf_graph]
     return triples
-rdf_file_path = "./OwlshelvesFinal_RDF.ttl"
-triples_factory_path = "./triples_factory.pkl"
+rdf_file_path = "/data/OwlshelvesFinal_RDF.ttl"
+triples_factory_path = "/data/triples_factory.pkl"
 
 try:
     print("Loading pre-computed triples factory...")
@@ -366,6 +367,7 @@ def similar_books(bookid: str, top_n: int = 5):
 
 @app.get("/api/search")
 def search_books(
+    request: Request,
     isbn: Optional[str] = None,
     title: Optional[str] = None,
     author: Optional[str] = None,
@@ -376,6 +378,7 @@ def search_books(
     pageSize: int = 10,
     pageNum: int = 1,
 ):
+    print(request.headers.get('referer'))
     query = """
     PREFIX ex: <http://example.org/owlshelves#>
     PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
@@ -488,6 +491,7 @@ def get_categories():
     """
     Returns the list of categories.
     """
+    check_categories()
     return categories[:1000]
 
 
@@ -496,8 +500,13 @@ def load_models():
     """
     Load models (TransE and Node2Vec) when the application starts.
     """
-    load_transe_model()  
+    load_transe_model()   
     load_node2vec_embeddings() 
+
+def check_categories():
+    global categories
+    if len(categories) == 0:
+        retrieve_categories()
 
 @app.on_event("startup")
 def retrieve_categories():  
@@ -514,8 +523,11 @@ def retrieve_categories():
     HAVING (?bookCount > 1) 
     ORDER BY desc(?bookCount)
   """
-  results = execute_sparql_query(query)
+  try:
+    results = execute_sparql_query(query)
 
-  for result in results["results"]["bindings"]:
-    genre = result["genre"]["value"]
-    categories.append(genre)
+    for result in results["results"]["bindings"]:
+        genre = result["genre"]["value"]
+        categories.append(genre)
+  except Exception as e:
+    print("Failed to retrieve categories at startup. Will try again at next query.")

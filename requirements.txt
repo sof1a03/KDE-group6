@@ -1,5 +1,0 @@
-uvicorn fastapi
-SPARQLWrapper
-pykeen
-node2vec
-rdflib

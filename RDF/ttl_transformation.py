@@ -48,9 +48,10 @@ datatype_properties = {
     "hasBookCover": ("Book", XSD.string, "URL for the book's cover image."),
     "hasGenre": ("Book", XSD.string, "Genre or category of the book."),
     "hasUserID": ("User", XSD.string, "Unique identifier for a user."),
-    "hasAge": ("User", XSD.float, "Age of the user."),
+    "hasAge": ("User", XSD.float, "Age group of the user."),
+    "hasAgeGroup": ("User", XSD.float, "Age of the user."),
     "hasCountry": ("User", XSD.string, "Country of the user."),
-    "ratingscore": ("Rating", XSD.float, "Score given to a book (1-10)."),
+    "ratingscore": ("Rating", XSD.float, "Score given to a book (1-10).")
 }
 for prop, (domain, range_, comment) in datatype_properties.items():
     g.add((EX[prop], RDF.type, OWL.DatatypeProperty))
@@ -59,8 +60,11 @@ for prop, (domain, range_, comment) in datatype_properties.items():
     g.add((EX[prop], RDFS.comment, Literal(comment)))
     g.add((EX[prop], RDFS.label, Literal(prop)))
 
-# Declare "hasISBN" as a functional property
+# Declare hasISBN, hasAge and hasAgeGroup as a functional property
 g.add((EX.hasISBN, RDF.type, OWL.FunctionalProperty))
+g.add((EX.hasAge, RDF.type, OWL.FunctionalProperty))
+g.add((EX.hasAgeGroup, RDF.type, OWL.FunctionalProperty))
+g.add((EX.hasAgeGroup, RDFS.subPropertyOf, EX.hasAge))
 
 # Define object properties with detailed annotations
 object_properties = {
@@ -98,7 +102,7 @@ def process_books(csv_file):
             g.add((book_uri, RDF.type, EX.Book))
             g.add((book_uri, EX.hasISBN, Literal(row["ISBN"], datatype=XSD.string)))
             g.add((book_uri, EX.hasTitle, Literal(row["Book_Title"], datatype=XSD.string)))
-            g.add((book_uri, EX.hasAuthor, Literal(row["Book_Author"], datatype=XSD.string)))
+            g.add((book_uri, EX.hasAuthor, Literal(row["Book_Author"], datatype=XSD.string), RDF.type, FOAF.Person)))
             if row.get("Year_Of_Publication") and row["Year_Of_Publication"].isdigit():
               g.add((book_uri, EX.hasYearOfPublication, Literal(row["Year_Of_Publication"], datatype=XSD.float)))
             g.add((book_uri, EX.hasPublisher, Literal(row["Publisher"], datatype=XSD.string)))
@@ -119,7 +123,7 @@ def process_users(csv_file):
         reader = csv.DictReader(csvfile)
         for row in reader:
             user_uri = EX[row["User-ID"]]
-            g.add((user_uri, RDF.type, EX.User))
+            g.add((user_uri, RDF.type, EX.User),RDF.type, FOAF.Person))
             g.add((user_uri, EX.hasUserID, Literal(row["User-ID"], datatype=XSD.string)))
             if row.get("Age") and row["Age"].isdigit():
               g.add((user_uri, EX.hasAge, Literal(row["Age"], datatype=XSD.float)))

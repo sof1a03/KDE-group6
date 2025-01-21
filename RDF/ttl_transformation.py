@@ -201,6 +201,6 @@ def compute_size_difference(books_file, users_file, ratings_file, ontology_file)
     print(f" - Ratings dataset: {ratings_size}")
     print(f" - Total dataset size: {total_dataset_size}")
     print(f" - Ontology (TTL) file: {ontology_size}")
-    print(f"Size Difference (Total dataset - Ontology): {round(size_difference,2)}%")
+    print(f"Size Difference (Total dataset - Ontology): {round(size_difference,2)}%") #note: the size difference could be less than what reported in the report due some changes
 
 compute_size_difference("books.csv", "users.csv", "ratings.csv", "owlshelves.ttl")

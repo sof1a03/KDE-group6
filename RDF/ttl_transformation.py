@@ -102,13 +102,20 @@ def process_books(csv_file):
             g.add((book_uri, RDF.type, EX.Book))
             g.add((book_uri, EX.hasISBN, Literal(row["ISBN"], datatype=XSD.string)))
             g.add((book_uri, EX.hasTitle, Literal(row["Book_Title"], datatype=XSD.string)))
-            g.add((book_uri, EX.hasAuthor, Literal(row["Book_Author"], datatype=XSD.string), RDF.type, FOAF.Person)))
+            # Declare the author as a literal foaf:Person
+            if row.get("Book_Author"):
+              author_name = row["Book_Author"].strip()
+              author_bnode = BNode()  # Create a blank node for the author
+              g.add((author_bnode, RDF.type, FOAF.Person))  # Declare as a FOAF person
+              g.add((author_bnode, FOAF.name, Literal(author_name, datatype=XSD.string)))  # Add author's name
+              g.add((book_uri, EX.hasAuthor, author_bnode))  # Link the book to the author (blank node)
+
             if row.get("Year_Of_Publication") and row["Year_Of_Publication"].isdigit():
               g.add((book_uri, EX.hasYearOfPublication, Literal(row["Year_Of_Publication"], datatype=XSD.float)))
             g.add((book_uri, EX.hasPublisher, Literal(row["Publisher"], datatype=XSD.string)))
-            if row.get("Genre").strip():
+            if row.get("Genre"):
               g.add((book_uri, EX.hasGenre, Literal(row.get("Genre", "Unknown"), datatype=XSD.string)))
-            if row.get("Book_Cover").strip():
+            if row.get("Book_Cover"):
               g.add((book_uri, EX.hasBookCover, Literal(row.get("Book_Cover", ""), datatype=XSD.string)))
 process_books("books.csv")
 end_time = time.time()
@@ -123,7 +130,7 @@ def process_users(csv_file):
         reader = csv.DictReader(csvfile)
         for row in reader:
             user_uri = EX[row["User-ID"]]
-            g.add((user_uri, RDF.type, EX.User),RDF.type, FOAF.Person))
+            g.add((user_uri, RDF.type, EX.User))
             g.add((user_uri, EX.hasUserID, Literal(row["User-ID"], datatype=XSD.string)))
             if row.get("Age") and row["Age"].isdigit():
               g.add((user_uri, EX.hasAge, Literal(row["Age"], datatype=XSD.float)))
@@ -147,20 +154,6 @@ def process_ratings(csv_file):
             g.add((rating_uri, EX.ratedBook, EX[row["ISBN"]]))
             g.add((rating_uri, EX.ratingscore, Literal(row["Book-Rating"], datatype=XSD.float)))
 process_ratings("ratings.csv")
-
-end_time = time.time()
-elapsed_time = end_time - start_time
-print("Ratings have been processed")
-print(f"in {elapsed_time:.2f} seconds")
-
-# Save file
-print("Starting serialization")
-start_time = time.time()
-g.serialize(destination='owlshelves.ttl', format='turtle')
-end_time = time.time()
-elapsed_time = end_time - start_time
-print(f"Serialization completed in {elapsed_time:.2f} seconds")
-print("RDF data has been written to ttl")
 
 # Compute and display dataset statistics
 def dataset_statistics(graph):

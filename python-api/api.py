@@ -5,11 +5,9 @@ from pykeen.triples import TriplesFactory
 from node2vec import Node2Vec
 import torch
 import rdflib
-import random
 from fastapi.middleware.cors import CORSMiddleware
 import numpy as np
 import pickle
-import json
 
 global triples_factory
 
@@ -126,7 +124,6 @@ def predict_top_books_transe(user_id, top_n=5):
         torch.tensor([entity_to_id[user_id]])
     ).detach().numpy().squeeze()
 
-    ''' ATTENTION: I'M NOT SURE THIS PART IS CORRECT, NEED TO CHECK WITH THE TEAM'''
     similarities = [] 
     for entity, idx in entity_to_id.items():
         if entity.startswith("http://example.org/book"): 
@@ -139,53 +136,8 @@ def predict_top_books_transe(user_id, top_n=5):
     top_books = sorted(similarities, key=lambda x: x[1], reverse=True)[:top_n]
     return [book for book, _ in top_books]
 
-def predict_similar_books(book_id, triples_factory, model, top_n=5):
-    """
-    Predict books similar to the given book_id based on embeddings.
-    """
-    entity_embeddings = model.entity_representations[0]
-    all_entities = list(triples_factory.entity_to_id.keys())
-    
-    if book_id not in triples_factory.entity_to_id:
-        raise ValueError(f"Book ID {book_id} not found in the entity set!")
-    
-    book_idx = triples_factory.entity_to_id[book_id]
-    book_embedding = entity_embeddings(torch.tensor(book_idx)).detach().numpy()
-    
-    similarities = []
-    for entity in all_entities:
-        if "book" in entity:  # Ensure only books are considered
-            entity_idx = triples_factory.entity_to_id[entity]
-            entity_embedding = entity_embeddings(torch.tensor(entity_idx)).detach().numpy()
-            similarity = -((book_embedding - entity_embedding) ** 2).sum()  # Euclidean distance
-            similarities.append((entity, similarity))
-    
-    # Sort by similarity and return top_n similar books
-    similarities = sorted(similarities, key=lambda x: x[1], reverse=True)
-    return [entity for entity, _ in similarities[:top_n]]
-
-def predict_similar_books_node2vec(book_id, top_n=5):
-    """
-    Recommend books similar to a given book using Node2Vec embeddings.
-    Args:
-        book_id (str): The ID of the book.
-        top_n (int): Number of similar books to return.
-    Returns:
-        list: A list of similar book IDs.
-    """
-    if not node2vec_model: 
-        raise HTTPException(status_code=500, detail="Node2Vec model not loaded")
-
-    try:
-        similar_books = node2vec_model.most_similar(book_id, topn=top_n)
-        return [book for book, _ in similar_books] # Return only the book IDs
-    except KeyError:
-        raise HTTPException(status_code=404, detail=f"Book ID {book_id} not found in Node2Vec embeddings")
-
 def compute_virtual_user_embedding(book_ids, triples_factory, model):
     entity_embeddings = model.entity_representations[0]
-    print(triples_factory) 
-    print(book_ids)
     book_indices = [
         triples_factory.entity_to_id[book_id] for book_id in book_ids if book_id in triples_factory.entity_to_id
     ]
@@ -199,12 +151,12 @@ def compute_virtual_user_embedding(book_ids, triples_factory, model):
     virtual_user_embedding = book_embeddings.mean(dim=0)
     return virtual_user_embedding
 
-import re
 
 def is_valid_isbn(isbn):
   """
   Checks if a given string is a valid ISBN-10 or ISBN-13.
-  This function is the same as the one provided in the previous response.
+  Args: isbn (string): The ISBN to validate.
+  Returns: Boolean
   """
   isbn = isbn.replace("-", "").replace(" ", "")
   if len(isbn) == 10:
@@ -216,7 +168,8 @@ def is_valid_isbn(isbn):
 def is_valid_isbn10(isbn):
   """
   Checks if a given string is a valid ISBN-10.
-  This function is the same as the one provided in the previous response.
+  Args: isbn (string): The ISBN-10 to validate.
+  Returns: Boolean
   """
   if not isbn[:-1].isdigit() or not (isbn[-1].isdigit() or isbn[-1] in ('X', 'x')):
     return False
@@ -233,7 +186,8 @@ def is_valid_isbn10(isbn):
 def is_valid_isbn13(isbn):
   """
   Checks if a given string is a valid ISBN-13.
-  This function is the same as the one provided in the previous response.
+  Args: isbn (string): The ISBN-10 to validate.
+  Returns: Boolean
   """
   if not isbn.isdigit():
     return False
@@ -250,9 +204,7 @@ def predict_top_books_for_virtual_user(virtual_user_embedding, triples_factory, 
     similarities = []
     max_id = entity_embeddings.max_id    
     for entity in all_entities:
-#        if "book" in entity:  # Ensure only books are considered
-        if is_valid_isbn(entity) and "rating" not in entity:  # Ensure only books are considered
-            print(entity)
+        if is_valid_isbn(entity) and "rating" not in entity:  
             entity_idx = triples_factory.entity_to_id[entity]
             if entity_idx >= max_id:
                 continue
@@ -261,9 +213,7 @@ def predict_top_books_for_virtual_user(virtual_user_embedding, triples_factory, 
             similarities.append((entity, similarity))
     
     # Sort by similarity and return top_n books
-    print('hi2')
     similarities = sorted(similarities, key=lambda x: x[1], reverse=True)
-    print('hi3')
     return [entity for entity, _ in similarities[:top_n]]
 
 @app.get("/api/recommended_books")
@@ -277,14 +227,10 @@ def recommended_books(book_ids: List[str] = Query(None), top_n: int = 5):
         list: Book ids of recommended books.
     """
     global triples_factory
-   # book_ids = book_ids[0]
-    print(book_ids)
     for i in range(len(book_ids)):
         book_ids[i] = f"http://example.org/owlshelves#{book_ids[i]}"
-    print(book_ids)
     virtual_user_embedding = compute_virtual_user_embedding(book_ids, triples_factory, transe_model)
     recommended_books = predict_top_books_for_virtual_user(virtual_user_embedding, triples_factory, transe_model, top_n=top_n)
-    print(recommended_books)
     query = """
     PREFIX ex: <http://example.org/owlshelves#>
     PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
@@ -303,9 +249,7 @@ def recommended_books(book_ids: List[str] = Query(None), top_n: int = 5):
     }
     """
 
-    print(query)
     try:
-        print(query)
         results = execute_sparql_query(query)
         book_uris = [result['book']['value'] for result in results["results"]["bindings"]]
 
@@ -343,28 +287,7 @@ def recommended_books(book_ids: List[str] = Query(None), top_n: int = 5):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-#    try:
-#        recommended_books = predict_top_books_for_virtual_user(virtual_user_embedding, triples_factory, transe_model, top_n=top_n)
-#        return recommended_books
-#    except Exception as e:
-#        raise HTTPException(status_code=500, detail=str(e))
     
-@app.get("/api/similar_books")
-def similar_books(bookid: str, top_n: int = 5):
-    """
-    Fetch books similar to the given book using Node2Vec embeddings.
-    Args:
-        bookid (str): The ID of the book.
-        top_n (int): Number of similar books to return.
-    Returns:
-        dict: A dictionary with the book ID and similar books.
-    """
-    try:
-        recommendations = predict_similar_books_node2vec(bookid, top_n=top_n) # Get similar books
-        return {"bookid": bookid, "similar_books": recommendations}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
 @app.get("/api/search")
 def search_books(
     request: Request,
@@ -378,7 +301,6 @@ def search_books(
     pageSize: int = 10,
     pageNum: int = 1,
 ):
-    print(request.headers.get('referer'))
     query = """
     PREFIX ex: <http://example.org/owlshelves#>
     PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
@@ -415,7 +337,6 @@ def search_books(
     query += f" LIMIT {pageSize} OFFSET {(pageNum - 1) * pageSize}"
 
     try:
-        print(query)
         results = execute_sparql_query(query)
         book_uris = [result['book']['value'] for result in results["results"]["bindings"]]
 
@@ -453,38 +374,6 @@ def search_books(
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-    
-@app.get("/api/surprise_me")
-def surprise_me(userid: Optional[str] = None, top_n: int = 5):
-    """
-    Fetch random book recommendations, excluding books already liked by the user.
-    Args:
-        userid (str, optional): The ID of the user.
-        top_n (int): Number of random books to return.
-    Returns:
-        dict: A dictionary of random book recommendations.
-    """
-    try:
-        query = "SELECT ?book WHERE { ?book a <http://example.org/Book> }"
-        all_books = execute_sparql_query(query)["results"]["bindings"]
-
-        if userid: 
-            liked_query = f"""
-            SELECT ?book WHERE {{
-                <http://example.org/user/{userid}> <http://example.org/likesBook> ?book .
-            }}
-            """
-            liked_books = execute_sparql_query(liked_query)["results"]["bindings"]
-            liked_book_ids = {b["book"]["value"] for b in liked_books}
-            available_books = [b["book"]["value"] for b in all_books if b["book"]["value"] not in liked_book_ids]
-        else:
-            available_books = [b["book"]["value"] for b in all_books]
-
-        random.shuffle(available_books) 
-        return {"surprise_me": available_books[:top_n]} 
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-    
     
 @app.get("/api/categories")
 def get_categories():

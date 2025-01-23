@@ -1,4 +1,4 @@
-.d-flex { /* Or a more specific selector if you have multiple d-flex containers */
+.d-flex {
   height: 100vh;
-  box-sizing: border-box; /* Include padding and borders in the height calculation */
+  box-sizing: border-box;
 }

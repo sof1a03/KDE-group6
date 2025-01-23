@@ -14,7 +14,6 @@ import { OnInit } from '@angular/core';
   styleUrl: './search-menu.component.css'
 })
 export class SearchMenuComponent implements OnInit {
-//  categories = ['Fiction', 'Non-Fiction', 'Mystery', 'Thriller', 'Sci-Fi', 'Romance', 'History'];
   categories: string[] = [];
   selectedCategories = [];
 
@@ -38,7 +37,6 @@ export class SearchMenuComponent implements OnInit {
     })
   }
   onSubmit() {
-    // Handle form submission here (e.g., send search data to a service)
     const isbn = (<HTMLInputElement>document.getElementById('isbn')).value;
     const title = (<HTMLInputElement>document.getElementById('title')).value;
     const author = (<HTMLInputElement>document.getElementById('author')).value;

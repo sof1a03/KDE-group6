@@ -20,7 +20,7 @@ https://www.youtube.com/watch?v=yAOon0DWW7A
 
 ## Data instructions
 Because within Apache Jena's Docker container the dataset upload mechanism is broken, the main instructions involve you copying the raw data files over into the container's appropriate folder.
-This section contains instructions on how to generate the dataset, as well as how to generate the files seen in step 2. of the installation instructions.
+This section contains instructions on how to generate the dataset, as well as how to generate the files seen in step 2 of the installation instructions.
 1. <Please fill in how to run the .ttl generation scripts here>
 2. Download the regular, non-containerized version of Apache Jena Fuseki from here: https://jena.apache.org/download/
 3. Run the jar using `java -jar fuseki-server.jar`. This part requires you have java installed, and that port 3030 must be free on your machine.

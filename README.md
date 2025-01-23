@@ -26,4 +26,5 @@ This section contains instructions on how to generate the dataset, as well as ho
 3. Run the jar using `java -jar fuseki-server.jar`. This part requires you have java installed, and that port 3030 must be free on your machine.
 4. Navigate to `localhost:3030` within a web-browser and click on 'Add one'. Give the database the name of 'owlshelvesbig' and select the TDB2 option.  Upload the aforementioned newly generated .ttl file. Click on 'Add Data', 'Select files', and upload the aforementioned newly generated .ttl file. Click 'Upload now' and wait for all triples to upload
 5. Relative to the Apache Jena folder, navigate to `'./run/databases/owlshelvesbig`. Replace the folder with the same name (located in `fuseki/staging` of the downloaded folder)
-6. Relative to the Apache Jena folder, navigate to `'./run/configuration`. Alter the path in the line that starts with `tdb2:location` to have `"/fuseki/databases/owlshelvesbig"` as its value.
+6. Relative to the Apache Jena folder, navigate to `'./run/configuration` and open the configuration file. Alter the path in the line that starts with `tdb2:location` to have `"/fuseki/databases/owlshelvesbig"` as its value. Rename this file to `owlshelvesbig_config.ttl` and copy it into `fuseki/staging/configs` and replace the old file.
+7. You can now continue from step 3 of the main instructions.

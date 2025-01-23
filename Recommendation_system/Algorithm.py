@@ -325,6 +325,21 @@ def predict_top_books_for_virtual_user(virtual_user_embedding, triples_factory, 
     print('hi3')
     return [entity for entity, _ in similarities[:top_n]]
 
+def evaluate_embedding_consistency(graph, model, entity_to_id):
+    entity_embeddings = model.entity_representations[0](indices=None).to("cuda").detach().cpu().numpy()
+    shortest_distances = dict(shortest_path_length(graph))
+    total_diff = 0
+    count = 0
+    for node1 in shortest_distances:
+        for node2, graph_distance in shortest_distances[node1].items():
+            if node1 in entity_to_id and node2 in entity_to_id:
+                idx1 = entity_to_id[node1]
+                idx2 = entity_to_id[node2]
+                embedding_distance = np.linalg.norm(entity_embeddings[idx1] - entity_embeddings[idx2])
+                total_diff += abs(embedding_distance - graph_distance)
+                count += 1
+    return total_diff / count
+
 def node2vec_running():
     vec_file_path = 'node2vec_embeddings.vec'
 
@@ -383,3 +398,22 @@ def transe_running():
     print(f"Top {top_n} recommended books for the virtual user:")
     for idx, book in enumerate(recommended_books, 1):
         print(f"{idx}. {book}")
+import networkx as nx    
+def evaluating_embedding_consistency():
+    rdf_file_path = "owlshelves.ttl"
+    triples = load_rdf_as_triples(rdf_file_path)
+    triples_array = np.array(triples, dtype=str)
+    triples_factory = TriplesFactory.from_labeled_triples(triples=triples_array)
+    train_triples, test_triples = train_test_split(triples_array, test_size=0.1, random_state=42)
+    train_factory = TriplesFactory.from_labeled_triples(train_triples)
+    
+    entity_to_id = triples_factory.entity_to_id
+    
+    
+    
+    graph = nx.Graph()
+    for s, p, o in triples:
+        graph.add_edge(s, o)
+    
+    consistency_score = evaluate_embedding_consistency(graph, transe_model, entity_to_id)
+    print(f"Embedding consistency score: {consistency_score:.4f}")

@@ -40,6 +40,7 @@ def validate_csv(input_file, output_file):
         print(f"Invalid rows: {invalid_count}")
 
 if __name__ == "__main__":
+     #adjust directories if needed
     input_csv = "ratings.csv"  
     output_csv = "validated_ratings.csv" 
     validate_csv(input_csv, output_csv)

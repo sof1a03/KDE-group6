@@ -17,7 +17,7 @@ def missing_values(df):
   df = pd.concat([miss,per*100],keys = ['Missing_Values','Percentage'], axis = 1) # concatenating both of them using concat method of pandas module.
   return df # returning dataframe
 
-users = pd.read_csv("Users.csv")
+users = pd.read_csv("Users.csv")  #adjust directory if needed
 
 users.head()
 

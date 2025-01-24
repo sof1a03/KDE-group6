@@ -30,3 +30,41 @@ This section contains instructions on how to generate the dataset, as well as ho
 7. Relative to the Apache Jena folder, navigate to `'./run/databases/owlshelvesbig`. Replace the folder with the same name (located in `fuseki/staging` of the downloaded folder)
 8. Relative to the Apache Jena folder, navigate to `'./run/configuration` and open the configuration file. Alter the path in the line that starts with `tdb2:location` to have `"/fuseki/databases/owlshelvesbig"` as its value. Rename this file to `owlshelvesbig_config.ttl` and copy it into `fuseki/staging/configs` and replace the old file.
 9. You can now continue from step 3 of the main instructions.
+
+
+
+### Linking the Dataset to OpenLibrary
+
+To link the dataset to OpenLibrary and extract relevant metadata, follow these steps:
+
+1. **Open the Dataset in OpenRefine**  
+   Load the `books.csv` file into OpenRefine.
+
+2. **Create OpenLibrary URLs**  
+   - From the dropdown menu of the `ISBN` column, select `Edit column` > `Add column based on this column's value`.  
+   - In the dialog that appears, replace `value` with:  
+     ```plaintext
+     "https://openlibrary.org/api/books?bibkeys=ISBN:" + value + "&format=json&jscmd=data"
+     ```  
+   - This creates a new column, `OpenLibraryURL`, containing the OpenLibrary API links for each book based on its ISBN.
+
+3. **Fetch Data from OpenLibrary**  
+   - In the newly created `OpenLibraryURL` column, select `Edit column` > `Add column by fetching URLs`.  
+   - Name the new column `OpenLibraryData`. This column will now contain the fetched JSON data for each book.
+
+4. **Extract Genres**  
+   - From the `OpenLibraryData` column, select `Edit column` > `Add column based on this column's value`.  
+   - In the dialog, replace `value` with:  
+     ```plaintext
+     forEach(value.parseJson()["ISBN:" + cells["ISBN"].value]["subjects"], v, v["name"]).join(", ")
+     ```  
+   - This creates a new column, `Genre`, containing the genres of each book.
+
+5. **Extract Book Covers**  
+   - Similarly, to extract the book cover, repeat the steps for genres but replace `value` with:  
+     ```plaintext
+     with(value.parseJson(), v, v["ISBN:" + cells["ISBN"].value]["cover"]["large"])
+     ```  
+   - This creates a new column, `Book_cover`, containing the URLs of the large cover images for each book.  
+
+These steps ensure that the dataset is enriched with linked data from OpenLibrary, including genres and cover images.

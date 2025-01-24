@@ -1,6 +1,6 @@
 # KDE-group6
 
-## Installation instructions
+## Installation instructions - Application and front-end
 
 1. Make sure Docker is installed on your system and running. Refer to https://www.docker.com/
 2. Download dataset and models from https://drive.google.com/file/d/1PUw8MFHrYdzTgXDpGX5MA9p9RkBe87gO/view?usp=sharing
@@ -18,7 +18,7 @@
 # YOUTUBE INSTRUCTIONS
 https://www.youtube.com/watch?v=yAOon0DWW7A
 
-## Data instructions
+## Data instructions - Turtle file creation and upload to Jena Fuseki
 Because within Apache Jena's Docker container the dataset upload mechanism is broken, the main instructions involve you copying the raw data files over into the container's appropriate folder.
 This section contains instructions on how to generate the dataset, as well as how to generate the files seen in step 2 of the installation instructions.
 Data Available here: https://drive.google.com/drive/folders/1G_7DAFJQ1NWm_LUR9eLY7O5KsKUJTi-Q?usp=sharing

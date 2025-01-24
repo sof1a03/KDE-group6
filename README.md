@@ -21,6 +21,7 @@ https://www.youtube.com/watch?v=yAOon0DWW7A
 ## Data instructions
 Because within Apache Jena's Docker container the dataset upload mechanism is broken, the main instructions involve you copying the raw data files over into the container's appropriate folder.
 This section contains instructions on how to generate the dataset, as well as how to generate the files seen in step 2 of the installation instructions.
+Data Available here: https://drive.google.com/drive/folders/1G_7DAFJQ1NWm_LUR9eLY7O5KsKUJTi-Q?usp=sharing
 1. Cleaning of the Data: From the original datasets please add in your work enviroment the merged_invalid_books csv file. Afterwards it will be possible to clean the datasets using the code in the Data_cleaning folder
 2. Please look below for the instructions to link the cleaned Book dataset to OpenLibrary
 3. Given the linked Datasets (that are also available, already linked, in the 'linked_data' folder), it is possible to run the 'ttl_transformation.py' code in the rdf folder, to obtain the ttl file for the next steps and a statistical analysis of the obtained file.

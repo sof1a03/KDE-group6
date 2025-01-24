@@ -20,7 +20,7 @@ def missing_values(df):
   return df # returning dataframe
 
 # Load datasets
-books = pd.read_csv("Books.csv")
+books = pd.read_csv("Books.csv") #adjust directory if needed
 
 """Books are identified by their respective ISBN. In order to not loose any book, any invalid ISBNs have already been identified and will be fixed in the dataset.
 Note that in the case of several authors, only the first is provided.
@@ -40,7 +40,7 @@ books.describe()
 merged_invalid_books = pd.read_csv("merged_invalid_books.csv", encoding='latin1')
 
 # Create a dictionary to map invalid ISBNs to their correct ISBN_true values
-isbn_correction_map = dict(zip(merged_invalid_books['ISBN'], merged_invalid_books['ISBN_true']))
+isbn_correction_map = dict(zip(merged_invalid_books['ISBN'], merged_invalid_books['ISBN_true'])) #adjust directory if needed
 # Replace the ISBN values in books using the mapping
 books['ISBN'] = books['ISBN'].replace(isbn_correction_map) #this is made in a separate ipynb code
 

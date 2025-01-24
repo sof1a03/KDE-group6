@@ -33,7 +33,8 @@ This section contains instructions on how to generate the dataset, as well as ho
 
 
 
-### Linking the Dataset to OpenLibrary
+
+# Linking the Dataset to OpenLibrary
 
 To link the dataset to OpenLibrary and extract relevant metadata, follow these steps:
 

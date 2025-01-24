@@ -8,13 +8,11 @@ import pandas as pd
 # Define namespaces
 EX = Namespace("http://example.org/owlshelves#")
 DC = Namespace("http://purl.org/dc/elements/1.1/")
-FOAF = Namespace("http://xmlns.com/foaf/0.1/")
 
 # Create RDF graph
 g = Graph()
 g.bind("ex", EX)
 g.bind("dc", DC)
-g.bind("foaf", FOAF)
 g.bind("owl", OWL)
 g.bind("rdfs", RDFS)
 g.bind("xsd", XSD)
@@ -102,13 +100,7 @@ def process_books(csv_file):
             g.add((book_uri, RDF.type, EX.Book))
             g.add((book_uri, EX.hasISBN, Literal(row["ISBN"], datatype=XSD.string)))
             g.add((book_uri, EX.hasTitle, Literal(row["Book_Title"], datatype=XSD.string)))
-            # Declare the author as a literal foaf:Person
-            if row.get("Book_Author"):
-              author_name = row["Book_Author"].strip()
-              author_bnode = BNode()  # Create a blank node for the author
-              g.add((author_bnode, RDF.type, FOAF.Person))  # Declare as a FOAF person
-              g.add((author_bnode, FOAF.name, Literal(author_name, datatype=XSD.string)))  # Add author's name
-              g.add((book_uri, EX.hasAuthor, author_bnode))  # Link the book to the author (blank node)
+            g.add((book_uri, EX.hasAuthor, Literal(row["Book_Author"], datatype=XSD.string))) #wanted to declare the author as a foaf:person but created problems with the system
 
             if row.get("Year_Of_Publication") and row["Year_Of_Publication"].isdigit():
               g.add((book_uri, EX.hasYearOfPublication, Literal(row["Year_Of_Publication"], datatype=XSD.float)))

@@ -22,9 +22,16 @@ https://www.youtube.com/watch?v=yAOon0DWW7A
 Because within Apache Jena's Docker container the dataset upload mechanism is broken, the main instructions involve you copying the raw data files over into the container's appropriate folder.
 This section contains instructions on how to generate the dataset, as well as how to generate the files seen in step 2 of the installation instructions.
 Data Available here: https://drive.google.com/drive/folders/1G_7DAFJQ1NWm_LUR9eLY7O5KsKUJTi-Q?usp=sharing
-1. Cleaning of the Data: From the original datasets please add in your work enviroment the merged_invalid_books csv file. Afterwards it will be possible to clean the datasets using the code in the Data_cleaning folder
-2. Please look below for the instructions to link the cleaned Book dataset to OpenLibrary
-3. Given the linked Datasets (that are also available, already linked, in the 'linked_data' folder), it is possible to run the 'ttl_transformation.py' code in the rdf folder, to obtain the ttl file for the next steps and a statistical analysis of the obtained turtle file.
+1. Add the Dataset to Your Environment
+Start by adding the merged_invalid_books.csv file from the original datasets to your working environment. This file will serve as the input for the cleaning process.
+2. Clean the Dataset
+Use the scripts provided in the Data_cleaning folder to clean the dataset. These scripts are specifically designed to handle inconsistencies and prepare the data for further processing.
+3. Link the Cleaned Dataset to OpenLibrary
+Follow the instructions below to link the cleaned Book dataset to OpenLibrary. This step ensures proper integration with external data sources for enhanced accuracy and completeness.
+4. Generate the Turtle File
+Once the datasets are cleaned and linked (you can also use the pre-linked datasets available in the linked_data folder), navigate to the rdf folder and run the ttl_transformation.py script. This script will:
+- Generate the .ttl (Turtle) file required for the next steps.
+- Perform a statistical analysis of the resulting Turtle file, providing insights into its structure and contents.
 4. Download the regular, non-containerized version of Apache Jena Fuseki from here: https://jena.apache.org/download/
 5. Run the jar using `java -jar fuseki-server.jar`. This part requires you have java installed, and that port 3030 must be free on your machine.
 6. Navigate to `localhost:3030` within a web-browser and click on 'Add one'. Give the database the name of 'owlshelvesbig' and select the TDB2 option.  Upload the aforementioned newly generated .ttl file. Click on 'Add Data', 'Select files', and upload the aforementioned newly generated .ttl file. Click 'Upload now' and wait for all triples to upload

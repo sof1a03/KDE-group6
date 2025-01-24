@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-rating_df = pd.read_csv('Ratings.csv')
+rating_df = pd.read_csv('Ratings.csv')  #adjust directory if needed
 
 #displaying the first 5 rows
 rating_df.head()

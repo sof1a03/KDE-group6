@@ -24,7 +24,7 @@ This section contains instructions on how to generate the dataset, as well as ho
 Data Available here: https://drive.google.com/drive/folders/1G_7DAFJQ1NWm_LUR9eLY7O5KsKUJTi-Q?usp=sharing
 1. Cleaning of the Data: From the original datasets please add in your work enviroment the merged_invalid_books csv file. Afterwards it will be possible to clean the datasets using the code in the Data_cleaning folder
 2. Please look below for the instructions to link the cleaned Book dataset to OpenLibrary
-3. Given the linked Datasets (that are also available, already linked, in the 'linked_data' folder), it is possible to run the 'ttl_transformation.py' code in the rdf folder, to obtain the ttl file for the next steps and a statistical analysis of the obtained file.
+3. Given the linked Datasets (that are also available, already linked, in the 'linked_data' folder), it is possible to run the 'ttl_transformation.py' code in the rdf folder, to obtain the ttl file for the next steps and a statistical analysis of the obtained turtle file.
 4. Download the regular, non-containerized version of Apache Jena Fuseki from here: https://jena.apache.org/download/
 5. Run the jar using `java -jar fuseki-server.jar`. This part requires you have java installed, and that port 3030 must be free on your machine.
 6. Navigate to `localhost:3030` within a web-browser and click on 'Add one'. Give the database the name of 'owlshelvesbig' and select the TDB2 option.  Upload the aforementioned newly generated .ttl file. Click on 'Add Data', 'Select files', and upload the aforementioned newly generated .ttl file. Click 'Upload now' and wait for all triples to upload
